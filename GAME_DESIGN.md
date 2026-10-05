@@ -32,7 +32,7 @@ Finais possíveis: redenção (cura), dominação, fuga, descoberto e linchado.
 1. [x] Projeto criado e rodando
 2. [x] Personagem andando
 3. [x] Ciclo dia/noite
-4. [ ] Fazenda: plantar, crescer, colher
+4. [x] Fazenda: plantar, crescer, colher
 5. [ ] Aldeões com rotina e falas
 6. [ ] Barra de fome e modo vampiro
 7. [ ] Caça com stealth e barra de suspeita
