@@ -4,9 +4,7 @@
 export const LARGURA = 800;
 export const ALTURA = 600;
 
-// Tamanho real do mapa — maior que a tela, a câmera segue o jogador
-export const LARGURA_MUNDO = 2000;
-export const ALTURA_MUNDO = 600;
+// O tamanho do mundo vem do mapa (src/assets/MapaGame2d.json), ver Mapa.ts
 
 export const VELOCIDADE_JOGADOR = 160;
 
