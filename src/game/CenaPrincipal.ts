@@ -34,6 +34,7 @@ export class CenaPrincipal extends Phaser.Scene {
 
   preload() {
     this.load.spritesheet('tiles', tilesetUrl, { frameWidth: TILE, frameHeight: TILE });
+    Jogador.carregar(this);
     this.load.json(CHAVE_MAPA, mapaUrl);
     this.load.image(CHAVE_IMAGEM_MAPA, imagemUrl);
   }

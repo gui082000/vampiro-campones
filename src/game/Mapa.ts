@@ -53,6 +53,8 @@ export class Mapa {
       bloqueados.add(o.y * dados.w + o.x);
     }
 
+    for (const indice of this.celulasDeAgua(scene, dados.w, dados.h)) bloqueados.add(indice);
+
     this.colisores = scene.physics.add.staticGroup();
     for (const indice of bloqueados) {
       const x = indice % dados.w;
@@ -63,6 +65,38 @@ export class Mapa {
     }
 
     for (const r of dados.labels) this.rotulos.set(r.s, { x: r.x * TILE, y: r.y * TILE });
+  }
+
+  // O JSON não diz onde há água, então lemos a cor na própria imagem: reduzimos o PNG
+  // para AMOSTRAS x AMOSTRAS pixels por célula e marcamos como água a célula em que
+  // metade ou mais das amostras é azul-escuro. Pontes (cor diferente) ficam livres.
+  private celulasDeAgua(scene: Phaser.Scene, colunas: number, linhas: number): number[] {
+    const AMOSTRAS = 4;
+    const imagem = scene.textures.get(CHAVE_IMAGEM_MAPA).getSourceImage() as HTMLImageElement;
+    const canvas = document.createElement('canvas');
+    canvas.width = colunas * AMOSTRAS;
+    canvas.height = linhas * AMOSTRAS;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+    ctx.imageSmoothingEnabled = false; // vizinho mais próximo: sem misturar cores da margem
+    ctx.drawImage(imagem, 0, 0, canvas.width, canvas.height);
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+    const agua: number[] = [];
+    for (let y = 0; y < linhas; y++) {
+      for (let x = 0; x < colunas; x++) {
+        let azuis = 0;
+        for (let sy = 0; sy < AMOSTRAS; sy++) {
+          for (let sx = 0; sx < AMOSTRAS; sx++) {
+            const i = ((y * AMOSTRAS + sy) * canvas.width + x * AMOSTRAS + sx) * 4;
+            const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
+            // água do mapa ≈ rgb(49,41,99); montanha roxa (60,52,67) e grama não passam
+            if (b > 80 && b - r >= 30 && b - g >= 35) azuis++;
+          }
+        }
+        if (azuis >= (AMOSTRAS * AMOSTRAS) / 2) agua.push(y * colunas + x);
+      }
+    }
+    return agua;
   }
 
   // Posição (em pixels) de um rótulo escrito no mapa, ex.: "Casa campones"
