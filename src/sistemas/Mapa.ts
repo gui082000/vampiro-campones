@@ -1,11 +1,9 @@
-import Phaser from 'phaser';
-import { TILE } from './Tileset';
-import mapaUrl from '../assets/MapaGame2d.json?url';
-import imagemUrl from '../assets/Mapaprincipal.png';
+import type Phaser from 'phaser';
+import { CHAVE_MAPA_DADOS, CHAVE_MAPA_IMAGEM } from '../arte/carregar';
+import { CAMADA } from '../arte/Camadas';
 
-export const CHAVE_MAPA = 'mapa-principal';
-export const CHAVE_IMAGEM_MAPA = 'mapa-imagem';
-export { mapaUrl, imagemUrl };
+// Tamanho de cada célula do mapa, em pixels
+export const TAMANHO_CELULA = 32;
 
 // Ids de objeto que não bloqueiam: decoração, pontes e escadas (ver MapaGame2d.json)
 const OBJETOS_DECORATIVOS = new Set([6, 9, 11, 14]);
@@ -15,7 +13,6 @@ const OBJETOS_DECORATIVOS = new Set([6, 9, 11, 14]);
 interface MapaRpg {
   w: number;
   h: number;
-  grounds: { x: number; y: number; c: number | null; s: { id: number } }[];
   objects: { x: number; y: number; t: { id: number } }[];
   collisions: string[]; // "indice:0", onde indice = y * w + x
   labels: { s: string; x: number; y: number }[];
@@ -35,14 +32,14 @@ export class Mapa {
   private rotulos = new Map<string, { x: number; y: number }>();
 
   constructor(scene: Phaser.Scene) {
-    const dados = scene.cache.json.get(CHAVE_MAPA) as MapaRpg;
+    const dados = scene.cache.json.get(CHAVE_MAPA_DADOS) as MapaRpg;
 
     this.colunas = dados.w;
     this.linhas = dados.h;
-    this.largura = dados.w * TILE;
-    this.altura = dados.h * TILE;
+    this.largura = dados.w * TAMANHO_CELULA;
+    this.altura = dados.h * TAMANHO_CELULA;
 
-    scene.add.image(0, 0, CHAVE_IMAGEM_MAPA).setOrigin(0, 0).setDepth(0);
+    scene.add.image(0, 0, CHAVE_MAPA_IMAGEM).setOrigin(0, 0).setDepth(CAMADA.mapa);
 
     // Células bloqueadas: as de colisão do arquivo mais os objetos sólidos (paredes,
     // árvores, pedras); os decorativos acima ficam de fora.
@@ -59,12 +56,16 @@ export class Mapa {
     for (const indice of bloqueados) {
       const x = indice % dados.w;
       const y = Math.floor(indice / dados.w);
-      const caixa = scene.add.rectangle(this.centroX(x), this.centroY(y), TILE, TILE).setVisible(false);
+      const caixa = scene.add
+        .rectangle(this.centroX(x), this.centroY(y), TAMANHO_CELULA, TAMANHO_CELULA)
+        .setVisible(false);
       scene.physics.add.existing(caixa, true);
       this.colisores.add(caixa);
     }
 
-    for (const r of dados.labels) this.rotulos.set(r.s, { x: r.x * TILE, y: r.y * TILE });
+    for (const r of dados.labels) {
+      this.rotulos.set(r.s, { x: r.x * TAMANHO_CELULA, y: r.y * TAMANHO_CELULA });
+    }
   }
 
   // O JSON não diz onde há água, então lemos a cor na própria imagem: reduzimos o PNG
@@ -72,7 +73,7 @@ export class Mapa {
   // metade ou mais das amostras é azul-escuro. Pontes (cor diferente) ficam livres.
   private celulasDeAgua(scene: Phaser.Scene, colunas: number, linhas: number): number[] {
     const AMOSTRAS = 4;
-    const imagem = scene.textures.get(CHAVE_IMAGEM_MAPA).getSourceImage() as HTMLImageElement;
+    const imagem = scene.textures.get(CHAVE_MAPA_IMAGEM).getSourceImage() as HTMLImageElement;
     const canvas = document.createElement('canvas');
     canvas.width = colunas * AMOSTRAS;
     canvas.height = linhas * AMOSTRAS;
@@ -105,11 +106,15 @@ export class Mapa {
   }
 
   centroX(coluna: number): number {
-    return coluna * TILE + TILE / 2;
+    return coluna * TAMANHO_CELULA + TAMANHO_CELULA / 2;
   }
 
   centroY(linha: number): number {
-    return linha * TILE + TILE / 2;
+    return linha * TAMANHO_CELULA + TAMANHO_CELULA / 2;
   }
 
+  // Centro (em pixels) de uma célula dada em coluna/linha, como nas posições de dados/mundo
+  centroDaCelula(celula: { coluna: number; linha: number }): { x: number; y: number } {
+    return { x: this.centroX(celula.coluna), y: this.centroY(celula.linha) };
+  }
 }

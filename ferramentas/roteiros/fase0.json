@@ -1,0 +1,57 @@
+[
+  { "foto": "1-inicio" },
+  { "andar": "a", "ate": 102.0 },
+  { "andar": "s", "ate": 25.5 },
+  { "andar": "a", "ate": 97.5 },
+  { "andar": "w", "ate": 24.5 },
+  { "apertar": "e" },
+  { "apertar": "3" },
+  { "apertar": "e" },
+  { "apertar": "2" },
+  { "apertar": "e" },
+  { "esperar": 300 },
+  {
+    "rotulo": "depois de arar, plantar e regar",
+    "js": "(() => { const c = jogo.scene.getScene('CenaPrincipal'); const k = c.fazenda.canteiros.find(k => k.coluna === 97 && k.linha === 24); return { canteiro: k, inventario: { ...c.inventario }, dica: c.interacao.dica }; })()"
+  },
+  { "andar": "a", "ate": 96.5 },
+  { "apertar": "1" },
+  { "apertar": "e" },
+  { "andar": "s", "ate": 25.5 },
+  { "foto": "2-canteiros-arado-e-plantado" },
+  {
+    "rotulo": "adiantando o crescimento (só no teste)",
+    "js": "(() => { const k = jogo.scene.getScene('CenaPrincipal').fazenda.canteiros.find(k => k.coluna === 97 && k.linha === 24); k.horasCrescendo = 35.9; return 'ok'; })()"
+  },
+  { "esperar": 1200 },
+  { "foto": "3-pronto-para-colher" },
+  { "andar": "d", "ate": 97.5 },
+  { "andar": "w", "ate": 24.5 },
+  { "js": "jogo.scene.getScene('CenaPrincipal').interacao.dica", "rotulo": "dica em cima da planta madura" },
+  { "apertar": "e" },
+  {
+    "rotulo": "depois de colher",
+    "js": "(() => { const c = jogo.scene.getScene('CenaPrincipal'); const k = c.fazenda.canteiros.find(k => k.coluna === 97 && k.linha === 24); return { solo: k.solo, inventario: { ...c.inventario } }; })()"
+  },
+  { "andar": "s", "ate": 25.5 },
+  { "andar": "d", "ate": 102.0 },
+  { "andar": "w", "ate": 15.5 },
+  { "andar": "d", "ate": 104.0 },
+  { "js": "jogo.scene.getScene('CenaPrincipal').interacao.dica", "rotulo": "dica perto da caixa" },
+  { "apertar": "e" },
+  { "andar": "a", "ate": 99.5 },
+  { "js": "jogo.scene.getScene('CenaPrincipal').interacao.dica", "rotulo": "dica perto da barraca" },
+  { "apertar": "e" },
+  {
+    "rotulo": "depois de vender e comprar",
+    "js": "({ ...jogo.scene.getScene('CenaPrincipal').inventario })"
+  },
+  { "foto": "4-depois-de-vender-e-comprar" },
+  {
+    "rotulo": "adiantando o relógio até 19h30 (só no teste)",
+    "js": "(() => { const r = jogo.scene.getScene('CenaPrincipal').relogio; r.avancar((19.5 - r.hora) * 5000); return { dia: r.dia, horario: r.horario, eNoite: r.eNoite }; })()"
+  },
+  { "esperar": 300 },
+  { "js": "jogo.scene.getScene('CenaPrincipal').hud.textoRelogio.style.color", "rotulo": "cor do relógio à noite" },
+  { "foto": "5-anoiteceu" }
+]

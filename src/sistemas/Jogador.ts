@@ -1,15 +1,19 @@
 import Phaser from 'phaser';
-import { VELOCIDADE_JOGADOR } from './config';
-import spriteUrl from '../assets/Moviment.png';
+import { VELOCIDADE_JOGADOR } from '../config';
+import { CAMADA } from '../arte/Camadas';
+import {
+  CHAVE_JOGADOR,
+  ESCALA_JOGADOR,
+  LADO_VIRADO_PARA_ESQUERDA,
+  PES_JOGADOR,
+  animacaoAndar,
+  criarAnimacoesPersonagem,
+  quadroParado,
+  type Direcao,
+} from '../arte/Personagem';
 
-export const CHAVE_JOGADOR = 'jogador';
-const COLUNAS = 6;
-// Linhas da folha (cada quadro tem 48x32): frente, lado (virado para a esquerda) e costas
-const LINHA = { baixo: 1, lado: 2, cima: 4 } as const;
-
-type Direcao = keyof typeof LINHA;
-
-// Cria o sprite animado do jogador e controla seu movimento por teclado (setas ou WASD).
+// Cria o Tomás e controla seu movimento por teclado (setas ou WASD), escolhendo a
+// animação de acordo com a direção.
 export class Jogador {
   sprite: Phaser.Physics.Arcade.Sprite;
 
@@ -17,28 +21,16 @@ export class Jogador {
   private wasd: Record<'W' | 'A' | 'S' | 'D', Phaser.Input.Keyboard.Key>;
   private direcao: Direcao = 'baixo';
 
-  static carregar(scene: Phaser.Scene) {
-    scene.load.spritesheet(CHAVE_JOGADOR, spriteUrl, { frameWidth: 48, frameHeight: 32 });
-  }
-
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    for (const [nome, linha] of Object.entries(LINHA)) {
-      const inicio = linha * COLUNAS;
-      scene.anims.create({
-        key: `andar-${nome}`,
-        frames: scene.anims.generateFrameNumbers(CHAVE_JOGADOR, { start: inicio, end: inicio + COLUNAS - 1 }),
-        frameRate: 10,
-        repeat: -1,
-      });
-    }
+    criarAnimacoesPersonagem(scene);
 
-    this.sprite = scene.physics.add.sprite(x, y, CHAVE_JOGADOR, LINHA.baixo * COLUNAS);
+    this.sprite = scene.physics.add.sprite(x, y, CHAVE_JOGADOR, quadroParado(this.direcao));
     this.sprite.setCollideWorldBounds(true);
-    this.sprite.setDepth(2);
-    this.sprite.setScale(2);
+    this.sprite.setDepth(CAMADA.personagens);
+    this.sprite.setScale(ESCALA_JOGADOR);
     // Hitbox só nos pés, para o personagem passar perto de paredes sem travar
-    this.sprite.body!.setSize(14, 10);
-    this.sprite.body!.setOffset(17, 18);
+    this.sprite.body!.setSize(PES_JOGADOR.largura, PES_JOGADOR.altura);
+    this.sprite.body!.setOffset(PES_JOGADOR.x, PES_JOGADOR.y);
 
     this.setas = scene.input.keyboard!.createCursorKeys();
     this.wasd = scene.input.keyboard!.addKeys('W,A,S,D') as typeof this.wasd;
@@ -67,16 +59,16 @@ export class Jogador {
     if (x === 0 && y === 0) {
       // Parado: congela no primeiro quadro da direção atual
       this.sprite.anims.stop();
-      this.sprite.setFrame(LINHA[this.direcao] * COLUNAS);
+      this.sprite.setFrame(quadroParado(this.direcao));
       return;
     }
 
     if (x !== 0) {
       this.direcao = 'lado';
-      this.sprite.setFlipX(x > 0);
+      this.sprite.setFlipX(LADO_VIRADO_PARA_ESQUERDA ? x > 0 : x < 0);
     } else {
       this.direcao = y < 0 ? 'cima' : 'baixo';
     }
-    this.sprite.anims.play(`andar-${this.direcao}`, true);
+    this.sprite.anims.play(animacaoAndar(this.direcao), true);
   }
 }

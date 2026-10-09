@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Fotos e perfil do navegador gerados por ferramentas/verificar-jogo.mjs
+ferramentas/saida
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

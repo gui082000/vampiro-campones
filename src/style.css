@@ -6,3 +6,8 @@ body {
   align-items: center;
   min-height: 100vh;
 }
+
+/* sem isto o canvas ganha um espaço embaixo (como uma linha de texto) e surgem barras de rolagem */
+canvas {
+  display: block;
+}

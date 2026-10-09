@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 import './style.css';
-import { ALTURA, LARGURA } from './game/config';
-import { CenaPrincipal } from './game/CenaPrincipal';
+import { ALTURA, LARGURA } from './config';
+import { CenaPrincipal } from './cenas/CenaPrincipal';
 
-new Phaser.Game({
+const jogo = new Phaser.Game({
   type: Phaser.AUTO,
   width: LARGURA,
   height: ALTURA,
@@ -13,3 +13,7 @@ new Phaser.Game({
   physics: { default: 'arcade' },
   scene: CenaPrincipal,
 });
+
+// Só no modo de desenvolvimento (npm run dev): deixa o jogo acessível pelo console do
+// navegador e pelos testes automáticos, ex.: jogo.scene.getScene('CenaPrincipal')
+if (import.meta.env.DEV) Object.assign(window, { jogo });
