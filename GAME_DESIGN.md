@@ -238,12 +238,12 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
 
 **Fase 3 (2026-10-10):**
 - 5 aldeões principais (Bento, Helena, Padre Anselmo, Dona Rosália, Orlando) e 4 de fundo (Dona Cida da
-  loja, Tonho ferreiro, Dona Lurdes viúva, Seu Amaro agricultor), em .
+  loja, Tonho ferreiro, Dona Lurdes viúva, Seu Amaro agricultor), em `dados/aldeoes.ts`.
 - Rotina por hora: o aldeão **aparece** no próximo lugar da rotina (não atravessa o mapa andando) e passeia
   um pouco onde está. Andar de um lugar a outro pelas ruas fica para a fase de polimento.
 - Amizade de 0 a 10 corações (10 pontos cada): conversar dá +3 por dia; presente +10 (gosta), +4 (normal)
   ou -6 (odeia), um por dia. As falas mudam a cada 3 corações. Na Fase 5 as ações noturnas vão tirar amizade.
-- Missões: 3 por aldeão principal (), liberadas com 0, 3 e 6 corações; levar itens e
+- Missões: 3 por aldeão principal (`dados/missoes.ts`), liberadas com 0, 3 e 6 corações; levar itens e
   receber moedas e amizade. As últimas dão pistas da história.
 - Loja da Dona Cida: sementes da estação + feno, adubo, madeira, pedra, pão e vara de pesca; abre das 8h às 18h.
 - Diário (J): missões, amizade, pistas (lápides, livros, conversas) e finais (Fase 7).
