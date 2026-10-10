@@ -44,7 +44,7 @@ Jogo 2D top-down de vida no campo + sobrevivência (referências: Stardew Valley
   O `passou` chega em pedaços que são todos de dia ou todos de noite (até quando o Tomás dorme).
 - No modo de desenvolvimento, o jogo fica acessível no console do navegador como `jogo`.
 
-**Controles:** J abre o diário · à noite, E em alguém dormindo (ou num animal) oferece morder · WASD ou setas andam · E usa o que está à frente do Tomás (com o item da mão) · 1 a 8 ou a
+**Controles:** Esc abre a pausa (salvar, carregar, opções) · J abre o diário · à noite, E em alguém dormindo (ou num animal) oferece morder · WASD ou setas andam · E usa o que está à frente do Tomás (com o item da mão) · 1 a 8 ou a
 rodinha do mouse escolhem o item · F come o item da mão · I abre o inventário · Esc ou Q fecham menus ·
 Tab troca de lado no depósito.
 
@@ -281,6 +281,15 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
 - Quem morre deixa um corpo onde estava. Carregar deixa o Tomás 40% mais lento; queimar na fogueira abaixo das
   ruínas da colina some com ele. O que não for queimado até as 6h é encontrado.
 
+**Fase 6 (2026-10-10):**
+- Um único save, no armazenamento do navegador (localStorage). O jogo salva sozinho a cada amanhecer e pelo
+  menu de pausa.  na tela inicial e  na tela de fim carregam o último save.
+- O save guarda o estado de todos os sistemas (), inclusive onde o Tomás está (até
+  dentro de casa ou do porão). Os recursos do mapa ficam nos mesmos lugares (mesma semente) e só o estado deles
+  é salvo.
+- Opções (valem para todos os saves): tela cheia, ajuda de teclas na tela e volume (para a Fase 9).
+- O relógio para com a pausa aberta. No desenvolvimento,  no endereço pula a tela inicial (testes).
+
 ## 9. Decisões pendentes
 
 - Mapa em imagem única: as árvores pintadas no mapa sempre ficam por baixo do Tomás. Resolver na arte final
@@ -313,7 +322,7 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
   sem matar), sinais físicos, sol, porão (caixão, cofre, altar), poderes velocidade/visão noturna/hipnose.
 - [x] **Fase 5 – Caça e suspeita:** testemunhas, corpos e fogueira, suspeita com 5 faixas e reação da vila,
   rondas e armadilhas do Orlando, linchamento.
-- [ ] **Fase 6 – Salvar/carregar,** menus, tela inicial, pausa, opções.
+- [x] **Fase 6 – Salvar/carregar,** tela inicial, pausa (Esc), opções, carregar no fim de jogo.
 - [ ] **Fase 7 – História:** Atos 1, 2 e 3 com eventos, diários, cenas curtas e pistas; Senhor da Colina; os 5 finais.
 - [ ] **Fase 8 – Clima,** estações, lua, poderes avançados, eventos aleatórios e festivais.
 - [ ] **Fase 9 – Polimento:** balanceamento, bugs, desempenho, som, textos, testes do jogo inteiro por simulação,

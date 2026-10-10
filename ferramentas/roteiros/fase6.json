@@ -1,0 +1,72 @@
+[
+  {
+    "rotulo": "preparar atalhos do teste",
+    "js": "(() => { window.cena = () => jogo.scene.getScene('CenaPrincipal'); window.irAte = (coluna, linha, lado) => { const C = cena(); const lados = { cima: [0, 1], esquerda: [1, 0], direita: [-1, 0], baixo: [0, -1] }; const [dx, dy] = lados[lado]; C.jogador.teleportar(coluna + dx, linha + dy, lado); return 'ok'; }; window.ate = (h) => { const r = cena().mundo.relogio; r.avancar(((h - r.hora + 24) % 24) * 12000); return r.horario; }; window.escolher = (trecho) => { const m = cena().mundo.menu; const i = m.opcoes.findIndex((o) => o.texto.includes(trecho)); m.selecionada = i; return i; }; return 'ok'; })()"
+  },
+  {
+    "js": "(() => { const C = cena(); const m = C.mundo; m.inventario.moedas = 777; m.inventario.adicionar('madeira', 40); m.inventario.adicionar('pedra', 20); m.vampiro.fome = 55; m.vampiro.poderes.push('hipnose'); m.suspeita.valor = 33; m.relacoes.somar('helena', 40); m.diario.anotar('Pista de teste'); const k = C.fazenda.lavoura.pegar(97, 23); k.arado = true; k.regado = true; k.plantio = { planta: 'trigo', horas: 20, morta: false }; C.fazenda.restaurar(C.fazenda.lavoura.canteiros); return 'ok'; })()",
+    "rotulo": "montando um jogo para salvar (só no teste)"
+  },
+  { "js": "irAte(114, 19, 'cima')" },
+  { "apertar": "e" },
+  { "apertar": "e" },
+  { "apertar": "e" },
+  { "apertar": "e" },
+  { "conferir": "cena().mundo.criacao.abrigos.galinheiro.animais.length === 1", "rotulo": "galinheiro com uma galinha" },
+  { "apertar": "esc" },
+  { "js": "irAte(106, 13, 'cima')" },
+  { "apertar": "e" },
+  { "esperarAte": "!cena().transicao.emAndamento && cena().interiores.local === 'casaDoTomas'", "maxQuadros": 200, "rotulo": "entrar em casa" },
+
+  { "apertar": "esc" },
+  { "conferir": "cena().mundo.menu.estaAberto", "rotulo": "Esc abre a pausa" },
+  { "foto": "01-pausa" },
+  { "js": "escolher('Salvar')" },
+  { "apertar": "e" },
+  { "conferir": "localStorage.getItem('sangue-na-terra:save') !== null", "rotulo": "o save foi gravado" },
+  { "js": "(window.moedasSalvas = cena().mundo.inventario.moedas, JSON.parse(localStorage.getItem('sangue-na-terra:save')).salvoEm)", "rotulo": "salvo em" },
+
+  { "js": "(() => { const m = cena().mundo; m.inventario.moedas = 1; m.vampiro.fome = 99; m.suspeita.valor = 90; return 'estado estragado'; })()", "rotulo": "mudando tudo depois de salvar (só no teste)" },
+  { "apertar": "esc" },
+  { "js": "escolher('Carregar')" },
+  { "apertar": "e" },
+  { "esperarAte": "cena().mundo && cena().mundo.inventario.moedas === window.moedasSalvas && !!cena().jogador", "maxQuadros": 300, "rotulo": "carregar o save" },
+  { "esperar": 100 },
+  { "conferir": "cena().mundo.inventario.quantidade('madeira') === 20", "rotulo": "inventário de volta" },
+  { "conferir": "Math.round(cena().mundo.vampiro.fome) === 55 && cena().mundo.vampiro.tem('hipnose')", "rotulo": "fome e poderes de volta" },
+  { "conferir": "cena().mundo.suspeita.valor === 33", "rotulo": "suspeita de volta" },
+  { "conferir": "cena().mundo.relacoes.porAldeao.helena.pontos === 40 && cena().mundo.diario.pistas.includes('Pista de teste')", "rotulo": "amizade e diário de volta" },
+  { "conferir": "cena().fazenda.lavoura.canteiros['97,23']?.plantio?.planta === 'trigo'", "rotulo": "plantação de volta" },
+  { "conferir": "cena().mundo.construcoes.tem('galinheiro') && cena().animais.naTela.length === 1", "rotulo": "galinheiro e galinha de volta" },
+  { "conferir": "cena().interiores.local === 'casaDoTomas'", "rotulo": "o Tomás volta dentro de casa" },
+  { "foto": "02-carregado" },
+
+  { "apertar": "esc" },
+  { "js": "escolher('Opções')" },
+  { "apertar": "e" },
+  { "js": "escolher('Ajuda')" },
+  { "apertar": "e" },
+  { "conferir": "cena().hud.ajuda.visible === false", "rotulo": "opção esconde a ajuda de teclas" },
+  { "conferir": "JSON.parse(localStorage.getItem('sangue-na-terra:opcoes')).mostrarAjuda === false", "rotulo": "a opção fica guardada" },
+  { "apertar": "esc" },
+
+  { "js": "ate(6.3)", "rotulo": "adiantando até a manhã seguinte (só no teste)" },
+  { "esperar": 100 },
+  { "conferir": "JSON.parse(localStorage.getItem('sangue-na-terra:save')).salvoEm.startsWith('Dia 2')", "rotulo": "salvou sozinho de manhã" },
+
+  { "apertar": "esc" },
+  { "js": "escolher('Sair para a tela inicial')" },
+  { "apertar": "e" },
+  { "esperar": 200 },
+  { "conferir": "jogo.scene.isActive('CenaInicio')", "rotulo": "voltou para a tela inicial" },
+  { "foto": "03-tela-inicial" },
+  { "apertar": "e" },
+  { "esperarAte": "jogo.scene.isActive('CenaPrincipal') && !jogo.scene.isActive('CenaInicio') && !!cena().jogador && cena().mundo.relogio.dia === 2", "maxQuadros": 300, "rotulo": "Continuar carrega o jogo" },
+
+  { "js": "(cena().mundo.vampiro.fome = 100, cena().mundo.vampiro.diasNoLimite = 1, ate(5.95))", "rotulo": "fome no limite (só no teste)" },
+  { "esperar": 2000 },
+  { "conferir": "cena().fimDeJogo.estaAberta", "rotulo": "fim de jogo" },
+  { "foto": "04-fim-com-carregar" },
+  { "apertar": "c" },
+  { "esperarAte": "!!cena().jogador && !cena().fimDeJogo.estaAberta && cena().mundo.relogio.dia === 2", "maxQuadros": 300, "rotulo": "C no fim de jogo carrega o último save" }
+]

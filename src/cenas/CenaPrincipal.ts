@@ -46,6 +46,8 @@ import type { Mundo } from '../sistemas/Mundo';
 import { Pesca } from '../sistemas/Pesca';
 import { Relogio } from '../sistemas/Relogio';
 import { Controle } from '../util/Controle';
+import { Pausa } from '../sistemas/Pausa';
+import { Salvar, aplicarNoMundo, existeSave, lerSave } from '../sistemas/Salvar';
 
 // Monta a cena a partir das peças e liga a atualização de cada uma por quadro.
 // Cada mecânica nova ganha seu próprio arquivo em src/sistemas e é conectada aqui.
@@ -73,8 +75,17 @@ export class CenaPrincipal extends Phaser.Scene {
   private evidencias!: Evidencias;
   private vigilancia!: Vigilancia;
 
+  private carregar = false;
+  private salvar!: Salvar;
+  private pausa!: Pausa;
+
   constructor() {
     super('CenaPrincipal');
+  }
+
+  // carregar: true = continua do último save
+  init(dados: { carregar?: boolean }) {
+    this.carregar = !!dados?.carregar;
   }
 
   preload() {
@@ -111,6 +122,10 @@ export class CenaPrincipal extends Phaser.Scene {
       testemunhas: () => [],
     };
 
+    // Carregar: o estado simples entra antes dos sistemas, que desenham o que leem
+    const save = this.carregar ? lerSave() : null;
+    if (save) aplicarNoMundo(save, this.mundo);
+
     const inicio = mapa.centroDaCelula(INICIO_JOGADOR);
     this.jogador = new Jogador(this, inicio.x, inicio.y);
     this.physics.add.collider(this.jogador.sprite, mapa.colisores);
@@ -138,13 +153,20 @@ export class CenaPrincipal extends Phaser.Scene {
     new Casa(this.mundo, this.interiores, this.transicao, this.telaDoInventario, artesanato);
     this.atalhos = new BarraDeAtalhos(this.mundo);
     this.caca = new Caca(this.mundo);
-    this.fimDeJogo = new FimDeJogo(this, controle);
+    this.fimDeJogo = new FimDeJogo(this, controle, existeSave);
     this.vampirismo = new Vampirismo(this.mundo, this.jogador, this.interiores, this.fimDeJogo);
     this.evidencias = new Evidencias(this.mundo, this.interiores, this.jogador);
     this.vigilancia = new Vigilancia(this.mundo, this.jogador, this.interiores, this.fimDeJogo);
 
     this.escurecimento = new Escurecimento(this);
     this.hud = new Hud(this, relogio, this.mundo.inventario, this.mundo.energia, this.mundo.interacao, this.mundo.vampiro, this.mundo.suspeita);
+
+    this.salvar = new Salvar(this.mundo, this.fazenda, this.coleta, this.interiores, this.jogador);
+    if (save) {
+      this.salvar.restaurarDepois(save);
+      this.mundo.avisos.mostrar(`Jogo carregado: ${save.salvoEm}`);
+    }
+    this.pausa = new Pausa(this.mundo, this.salvar, this.hud);
 
     // Estação: tom do mapa e aviso no primeiro dia
     mapa.aplicarEstacao(relogio.estacao);
@@ -170,6 +192,7 @@ export class CenaPrincipal extends Phaser.Scene {
     this.dialogo.atualizar();
     this.telaDoInventario.atualizar();
     this.telaDoDiario.atualizar();
+    this.pausa.atualizar();
 
     this.jogador.atualizar(controle.livre);
     this.atalhos.atualizar();

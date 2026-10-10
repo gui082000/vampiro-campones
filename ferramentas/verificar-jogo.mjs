@@ -23,7 +23,7 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join, resolve } from 'node:path';
 
-const [, , roteiroArq, saidaArg, url = 'http://localhost:5173/'] = process.argv;
+const [, , roteiroArq, saidaArg, url = 'http://localhost:5173/?direto'] = process.argv;
 if (!roteiroArq) {
   console.log('Uso: node ferramentas/verificar-jogo.mjs <roteiro.json> [pasta_saida] [url]');
   process.exit(1);
@@ -112,7 +112,7 @@ async function avaliar(expressao) {
 
 const TECLAS = {
   a: ['KeyA', 65, 'a'], s: ['KeyS', 83, 's'], d: ['KeyD', 68, 'd'], w: ['KeyW', 87, 'w'],
-  e: ['KeyE', 69, 'e'], f: ['KeyF', 70, 'f'], i: ['KeyI', 73, 'i'], q: ['KeyQ', 81, 'q'], j: ['KeyJ', 74, 'j'],
+  e: ['KeyE', 69, 'e'], f: ['KeyF', 70, 'f'], i: ['KeyI', 73, 'i'], q: ['KeyQ', 81, 'q'], c: ['KeyC', 67, 'c'], j: ['KeyJ', 74, 'j'],
   esc: ['Escape', 27, 'Escape'], enter: ['Enter', 13, 'Enter'], tab: ['Tab', 9, 'Tab'],
   cima: ['ArrowUp', 38, 'ArrowUp'], baixo: ['ArrowDown', 40, 'ArrowDown'],
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8].map((n) => [n, [`Digit${n}`, 48 + n, String(n)]])),

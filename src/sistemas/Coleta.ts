@@ -78,6 +78,17 @@ export class Coleta {
     });
   }
 
+  // Ao carregar um save: copia o estado de cada recurso (mesmas posições, mesma semente)
+  restaurar(salvos: NoDeRecurso[]) {
+    salvos.forEach((salvo, i) => {
+      const no = this.nos[i];
+      if (!no || no.tipo !== salvo.tipo || no.coluna !== salvo.coluna || no.linha !== salvo.linha) return;
+      no.golpes = salvo.golpes;
+      no.diasParaVoltar = salvo.diasParaVoltar;
+    });
+    this.nos.forEach((_, i) => this.redesenhar(i));
+  }
+
   private get contexto(): ContextoDaColeta {
     const { inventario, energia, relogio } = this.mundo;
     return { inventario, energia, estacao: relogio.estacao, aleatorio: Math.random };

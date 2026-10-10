@@ -42,6 +42,12 @@ export class Hud {
   private textoItem: Phaser.GameObjects.Text;
   private textoDica: Phaser.GameObjects.Text;
   private assinaturaDaBarra = '';
+  private ajuda!: Phaser.GameObjects.Text;
+
+  // Opção: mostrar ou não a ajuda de teclas no canto
+  mostrarAjuda(sim: boolean) {
+    this.ajuda.setVisible(sim);
+  }
 
   private vampiro: Vampiro;
   private suspeita: Suspeita;
@@ -93,8 +99,8 @@ export class Hud {
     }
     this.textoItem = texto(LARGURA / 2, ALTURA - 72, { ...ESTILO_TEXTO, fontSize: '14px' }).setOrigin(0.5, 1);
     this.textoDica = texto(LARGURA / 2, ALTURA - 104, ESTILO_TEXTO).setOrigin(0.5, 1);
-    texto(12, ALTURA - 50, { fontFamily: 'monospace', fontSize: '11px', color: '#dddddd', backgroundColor: '#00000088', padding: { x: 5, y: 3 } })
-      .setText('E: usar   F: comer\nI: inventário   J: diário');
+    this.ajuda = texto(12, ALTURA - 50, { fontFamily: 'monospace', fontSize: '11px', color: '#dddddd', backgroundColor: '#00000088', padding: { x: 5, y: 3 } })
+      .setText('E: usar   F: comer   Esc: pausa\nI: inventário   J: diário');
 
     // A cor da hora acompanha a vida do Tomás: branco de dia, vermelho à noite
     this.textoHora.setColor(relogio.eNoite ? COR_NOITE : COR_DIA);

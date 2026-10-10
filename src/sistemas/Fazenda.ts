@@ -63,6 +63,12 @@ export class Fazenda {
     return alvo;
   }
 
+  // Ao carregar um save: troca os canteiros e desenha todos
+  restaurar(canteiros: Record<string, Canteiro>) {
+    this.lavoura.canteiros = canteiros;
+    for (const c of this.lavoura.todos()) this.redesenhar(c);
+  }
+
   // Só redesenha quando a aparência muda (ex.: a planta passou de fase)
   private redesenhar(c: Canteiro) {
     const chave = `${c.coluna},${c.linha}`;

@@ -57,6 +57,23 @@ export class Interiores {
     for (const id of this.cantos.keys()) this.montar(id, INTERIORES[id]);
   }
 
+  // Onde o Tomás está, para o save
+  onde(jogador: Jogador): { local: string; coluna: number; linha: number; volta: { coluna: number; linha: number }; salaDeVolta: string } {
+    const { coluna, linha } = jogador.celulaDosPes;
+    return { local: this.local, coluna, linha, volta: this.volta, salaDeVolta: this.salaDeVolta };
+  }
+
+  // Ao carregar um save: põe o Tomás de volta e acerta a câmera
+  restaurar(onde: { local: string; coluna: number; linha: number; volta: { coluna: number; linha: number }; salaDeVolta: string }) {
+    this.local = onde.local as IdInterior | 'fora';
+    this.volta = onde.volta;
+    this.salaDeVolta = onde.salaDeVolta as IdInterior | 'fora';
+    this.jogador.teleportar(onde.coluna, onde.linha, 'baixo');
+    if (this.local === 'fora') {
+      this.mundo.cena.cameras.main.setBounds(0, 0, this.mundo.mapa.largura, this.mundo.mapa.altura);
+    } else this.prenderCamera(this.local);
+  }
+
   // O que acontece ao usar um tipo de móvel numa sala (ex.: a cama da casa do Tomás)
   definirUso(sala: IdInterior, tipo: TipoDeMovel, uso: UsoDeMovel) {
     this.usos.set(`${sala}.${tipo}`, uso);

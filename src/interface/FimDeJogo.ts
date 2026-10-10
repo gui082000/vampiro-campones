@@ -4,17 +4,21 @@ import { ALTURA, LARGURA } from '../config';
 import type { Controle } from '../util/Controle';
 
 // Tela de fim de jogo (por enquanto só o fim pela fome; os 5 finais chegam na Fase 7).
-// E recomeça do zero (carregar o último save chega na Fase 6).
+// C carrega o último save; E recomeça do zero.
 export class FimDeJogo {
   private aberta = false;
   private scene: Phaser.Scene;
   private controle: Controle;
   private teclaE: Phaser.Input.Keyboard.Key;
+  private teclaC: Phaser.Input.Keyboard.Key;
+  private temSave: () => boolean;
 
-  constructor(scene: Phaser.Scene, controle: Controle) {
+  constructor(scene: Phaser.Scene, controle: Controle, temSave: () => boolean) {
+    this.temSave = temSave;
     this.scene = scene;
     this.controle = controle;
     this.teclaE = scene.input.keyboard!.addKey('E');
+    this.teclaC = scene.input.keyboard!.addKey('C');
   }
 
   get estaAberta(): boolean {
@@ -35,10 +39,12 @@ export class FimDeJogo {
         .setOrigin(0.5, 0)
         .setWordWrapWidth(560),
     );
-    fixo(this.scene.add.text(LARGURA / 2, 470, 'E: recomeçar', { fontFamily: 'monospace', fontSize: '14px', color: '#8a8a8a' }).setOrigin(0.5));
+    fixo(this.scene.add.text(LARGURA / 2, 470, this.temSave() ? 'C: carregar o último save     E: recomeçar do zero' : 'E: recomeçar do zero', { fontFamily: 'monospace', fontSize: '14px', color: '#8a8a8a' }).setOrigin(0.5));
   }
 
   atualizar() {
-    if (this.aberta && Phaser.Input.Keyboard.JustDown(this.teclaE)) this.scene.scene.restart();
+    if (!this.aberta) return;
+    if (Phaser.Input.Keyboard.JustDown(this.teclaE)) this.scene.scene.restart({ carregar: false });
+    if (Phaser.Input.Keyboard.JustDown(this.teclaC) && this.temSave()) this.scene.scene.restart({ carregar: true });
   }
 }
