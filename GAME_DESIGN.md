@@ -283,12 +283,12 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
 
 **Fase 6 (2026-10-10):**
 - Um único save, no armazenamento do navegador (localStorage). O jogo salva sozinho a cada amanhecer e pelo
-  menu de pausa.  na tela inicial e  na tela de fim carregam o último save.
-- O save guarda o estado de todos os sistemas (), inclusive onde o Tomás está (até
+  menu de pausa. "Continuar" na tela inicial e a tecla C na tela de fim carregam o último save.
+- O save guarda o estado de todos os sistemas (`estado/Salvamento.ts`), inclusive onde o Tomás está (até
   dentro de casa ou do porão). Os recursos do mapa ficam nos mesmos lugares (mesma semente) e só o estado deles
   é salvo.
 - Opções (valem para todos os saves): tela cheia, ajuda de teclas na tela e volume (para a Fase 9).
-- O relógio para com a pausa aberta. No desenvolvimento,  no endereço pula a tela inicial (testes).
+- O relógio para com a pausa aberta. No desenvolvimento, `?direto` no endereço pula a tela inicial (testes).
 
 ## 9. Decisões pendentes
 
