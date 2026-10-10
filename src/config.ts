@@ -47,3 +47,15 @@ export const MULTIPLICADOR_ADUBO = 1.5; // terra adubada: a planta cresce 50% ma
 export const PESCA_ESPERA_MINIMA = 1.5; // tempo até o peixe morder
 export const PESCA_ESPERA_MAXIMA = 4;
 export const PESCA_TEMPO_PARA_FISGAR = 0.8; // depois do "!", quanto tempo para apertar E
+
+// Vampirismo (Fase 4)
+export const FOME_POR_HORA_DE_DIA = 0.9; // a fome vai de 0 (saciado) a 100
+export const FOME_POR_HORA_DE_NOITE = 1.6;
+export const FOME_ALTA = 70; // daqui para cima: mais lento e as ferramentas cansam mais
+export const DIAS_NO_LIMITE_PARA_SUCUMBIR = 2; // dias inteiros com fome 100 = fim de jogo
+export const MULTIPLICADOR_VELOCIDADE_NOITE = 1.35; // o vampiro corre mais no escuro
+export const MULTIPLICADOR_VELOCIDADE_FOME = 0.8; // com fome alta
+export const SOL_FORTE = [10, 16]; // de 10h às 16h, fora de casa e com fome, o sol cansa
+export const ENERGIA_POR_HORA_NO_SOL = 3;
+export const QUEIMADURA_DO_AMANHECER = { energia: 40, fome: 20 }; // pego pelo sol fora de casa
+export const CHANCE_DE_VIAJANTE = 0.35; // por noite

@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { TAMANHO_BARRA } from '../config';
+import { definicaoDoItem } from '../dados/itens';
 import { comer } from '../estado/Energia';
+import { usarItemDoVampiro } from '../estado/Vampiro';
 import type { Mundo } from './Mundo';
 
 const TECLAS = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE'];
@@ -33,6 +35,10 @@ export class BarraDeAtalhos {
 
     const indice = apertadas.indexOf(true);
     if (indice >= 0) this.mundo.inventario.selecionar(indice);
-    if (querComer) this.mundo.avisos.mostrar(comer(this.mundo.inventario, this.mundo.energia).aviso);
+    if (!querComer) return;
+    const { inventario, energia, vampiro, relogio, avisos } = this.mundo;
+    const item = inventario.itemNaMao;
+    const doVampiro = item !== null && definicaoDoItem(item).tipo === 'vampiro';
+    avisos.mostrar((doVampiro ? usarItemDoVampiro(vampiro, inventario, relogio.dia) : comer(inventario, energia)).aviso);
   }
 }

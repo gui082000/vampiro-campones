@@ -5,7 +5,9 @@ import { ALDEOES, type DefinicaoDeAldeao, type IdAldeao, type Lugar } from '../d
 import { nomeDoItem } from '../dados/itens';
 import { MISSOES, type DefinicaoDeMissao } from '../dados/missoes';
 import { aceitar, entregar, missaoAtiva, missaoDisponivel, podeEntregar, textoDoPedido } from '../estado/Missoes';
-import { conversar, presentear } from '../estado/Relacoes';
+import { ALIMENTOS } from '../dados/vampiro';
+import { conversar, presentear, registrarMorte } from '../estado/Relacoes';
+import { beber, sinalVisivel } from '../estado/Vampiro';
 import type { Dialogo } from '../interface/Dialogo';
 import type { Interiores } from './Interiores';
 import { TAMANHO_CELULA } from './Mapa';
@@ -51,7 +53,8 @@ export class Aldeoes {
         },
         largura: TAMANHO_CELULA,
         altura: TAMANHO_CELULA * 1.5,
-        dica: () => `${def.nome} · E: conversar`,
+        ativo: () => mundo.relacoes.vivo(id),
+        dica: () => (this.dormindo(id) ? `${def.nome} dorme · E: aproximar-se` : `${def.nome} · E: conversar`),
         acao: () => this.abrirConversa(id),
       });
     }
@@ -89,6 +92,10 @@ export class Aldeoes {
 
   atualizar(deltaMs: number) {
     for (const a of this.naTela) {
+      if (!this.mundo.relacoes.vivo(a.id)) {
+        a.sprite.setVisible(false);
+        continue;
+      }
       const def: DefinicaoDeAldeao = ALDEOES[a.id];
       const indice = this.lugarDaHora(def);
       if (indice !== a.lugarAtual) {
@@ -131,7 +138,50 @@ export class Aldeoes {
     a.sprite.anims.play(animacaoAndar(direcao), true);
   }
 
+  // À noite, na própria casa (o primeiro lugar da rotina), o aldeão está dormindo
+  private dormindo(id: IdAldeao): boolean {
+    const casa = (ALDEOES[id] as DefinicaoDeAldeao).rotina[0][1].sala;
+    return this.mundo.relogio.eNoite && casa !== 'fora' && this.salaDe(id) === casa;
+  }
+
+  private abrirMordida(id: IdAldeao) {
+    const { menu, vampiro, relacoes, missoes, avisos, relogio } = this.mundo;
+    const def: DefinicaoDeAldeao = ALDEOES[id];
+    menu.abrir(`${def.nome} dorme. A respiração é lenta.`, () => [
+      {
+        texto: 'Beber um pouco',
+        detalhe: ALIMENTOS.aldeaoPouco.descricao + (vampiro.tem('hipnose') ? ' Com a hipnose, não vai lembrar de nada.' : ' Sem hipnose, vai lembrar e perder a confiança em você.'),
+        aoEscolher: () => {
+          avisos.mostrar(beber(vampiro, 'aldeaoPouco', def.nome).aviso);
+          relacoes.fracoNoDia[id] = relogio.dia + (relogio.hora >= 6 ? 1 : 0);
+          if (!vampiro.tem('hipnose')) {
+            relacoes.somar(id, -30);
+            vampiro.registro.push(`testemunha:${id}`);
+          }
+          return 'fechar' as const;
+        },
+      },
+      {
+        texto: 'Beber até o fim',
+        detalhe: `${ALIMENTOS.aldeaoFim.descricao} Você nunca mais vai ver ${def.nome}.`,
+        aoEscolher: () => {
+          avisos.mostrar(beber(vampiro, 'aldeaoFim', def.nome).aviso);
+          registrarMorte(relacoes, id);
+          for (const m of missoes.ativas()) if (MISSOES[m].aldeao === id) delete missoes.situacao[m];
+          vampiro.registro.push(`desaparecido:${id}`);
+          avisos.mostrar(`${def.nome} não vai acordar. A vila inteira vai sentir.`);
+          return 'fechar' as const;
+        },
+      },
+      { texto: 'Sair de fininho', aoEscolher: () => 'fechar' as const },
+    ]);
+  }
+
   private abrirConversa(id: IdAldeao) {
+    if (this.dormindo(id)) {
+      this.abrirMordida(id);
+      return;
+    }
     const { menu, relacoes, missoes, inventario, avisos, relogio } = this.mundo;
     const def: DefinicaoDeAldeao = ALDEOES[id];
     const falar = (falas: string[], depois?: () => void) => this.dialogo.falar(def.nome, def.cor, falas, depois);
@@ -143,7 +193,11 @@ export class Aldeoes {
           {
             texto: 'Conversar',
             aoEscolher: () => {
-              falar([conversar(relacoes, id, relogio.dia)]);
+              const fraco = relacoes.fracoNoDia[id] === relogio.dia;
+              const fala = fraco ? 'Acordei tão fraco hoje... e com duas marquinhas no pescoço. Mosquito, deve ser.' : conversar(relacoes, id, relogio.dia);
+              const sinal = sinalVisivel(this.mundo.vampiro, relogio.dia);
+              if (sinal) this.mundo.vampiro.registro.push(`sinal:${id}`);
+              falar(sinal ? [`(${def.nome} repara em você: ${sinal.toLowerCase()}.) Você tá bem? Tá com uma cara...`, fala] : [fala]);
               return 'fechar';
             },
           },

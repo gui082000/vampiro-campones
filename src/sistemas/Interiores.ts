@@ -29,6 +29,7 @@ export class Interiores {
   private cantos = new Map<IdInterior, { coluna: number; linha: number }>();
   private usos = new Map<string, UsoDeMovel>();
   private volta = { coluna: 0, linha: 0 };
+  private salaDeVolta: IdInterior | 'fora' = 'fora';
 
   constructor(mundo: Mundo, transicao: Transicao, jogador: Jogador) {
     this.mundo = mundo;
@@ -61,14 +62,16 @@ export class Interiores {
     this.usos.set(`${sala}.${tipo}`, uso);
   }
 
-  // Entra na sala; `voltarPara` é a célula fora onde o Tomás aparece ao sair
-  entrar(id: IdInterior, voltarPara: { coluna: number; linha: number }) {
+  // Entra na sala; `voltarPara` é a célula onde o Tomás aparece ao sair (fora, ou dentro
+  // de outra sala, ex.: do porão volta para dentro da casa)
+  entrar(id: IdInterior, voltarPara: { coluna: number; linha: number }, salaDeVolta: IdInterior | 'fora' = 'fora') {
     this.transicao.escurecerE(() => {
       const porta = this.portaDe(id);
       this.jogador.teleportar(porta.coluna, porta.linha - 1, 'cima');
       this.prenderCamera(id);
       this.local = id;
       this.volta = voltarPara;
+      this.salaDeVolta = salaDeVolta;
     });
   }
 
@@ -76,8 +79,10 @@ export class Interiores {
     this.transicao.escurecerE(() => {
       this.jogador.teleportar(this.volta.coluna, this.volta.linha, 'baixo');
       const { mapa, cena } = this.mundo;
-      cena.cameras.main.setBounds(0, 0, mapa.largura, mapa.altura);
-      this.local = 'fora';
+      if (this.salaDeVolta === 'fora') cena.cameras.main.setBounds(0, 0, mapa.largura, mapa.altura);
+      else this.prenderCamera(this.salaDeVolta);
+      this.local = this.salaDeVolta;
+      this.salaDeVolta = 'fora';
     });
   }
 
@@ -99,7 +104,7 @@ export class Interiores {
   }
 
   // A sala é menor que a tela: a câmera fica parada com a sala no meio
-  private prenderCamera(id: IdInterior) {
+  prenderCamera(id: IdInterior) {
     const r = this.mundo.mapa.areaEmPixels(this.areaDa(id));
     this.mundo.cena.cameras.main.setBounds(r.x - LARGURA / 2, r.y - ALTURA / 2, LARGURA, ALTURA);
   }

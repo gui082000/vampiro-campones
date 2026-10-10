@@ -7,6 +7,7 @@ import type { Energia } from '../estado/Energia';
 import type { Inventario } from '../estado/Inventario';
 import type { Interacao } from '../sistemas/Interacao';
 import type { Relogio } from '../sistemas/Relogio';
+import { sinalVisivel, type Vampiro } from '../estado/Vampiro';
 import { CaixaDeItem } from './CaixaDeItem';
 
 const ESTILO_TEXTO: Phaser.Types.GameObjects.Text.TextStyle = {
@@ -41,7 +42,12 @@ export class Hud {
   private textoDica: Phaser.GameObjects.Text;
   private assinaturaDaBarra = '';
 
-  constructor(scene: Phaser.Scene, relogio: Relogio, inventario: Inventario, energia: Energia, interacao: Interacao) {
+  private vampiro: Vampiro;
+  private barraFome!: Phaser.GameObjects.Rectangle;
+  private textoFome!: Phaser.GameObjects.Text;
+
+  constructor(scene: Phaser.Scene, relogio: Relogio, inventario: Inventario, energia: Energia, interacao: Interacao, vampiro: Vampiro) {
+    this.vampiro = vampiro;
     this.relogio = relogio;
     this.inventario = inventario;
     this.energia = energia;
@@ -59,6 +65,11 @@ export class Hud {
     fixo(scene.add.rectangle(12, 116, LARGURA_BARRA_ENERGIA + 4, 16, 0x000000, 0.65).setOrigin(0, 0.5));
     this.barraEnergia = fixo(scene.add.rectangle(14, 116, LARGURA_BARRA_ENERGIA, 12, 0x5ac85a).setOrigin(0, 0.5));
     this.textoEnergia = texto(LARGURA_BARRA_ENERGIA + 22, 107, { ...ESTILO_TEXTO, fontSize: '13px', padding: { x: 4, y: 1 } });
+
+    // Fome: barra vermelha que enche, o sinal visível e a essência
+    fixo(scene.add.rectangle(12, 138, LARGURA_BARRA_ENERGIA + 4, 16, 0x000000, 0.65).setOrigin(0, 0.5));
+    this.barraFome = fixo(scene.add.rectangle(14, 138, 0, 12, 0xb02030).setOrigin(0, 0.5));
+    this.textoFome = texto(LARGURA_BARRA_ENERGIA + 22, 129, { ...ESTILO_TEXTO, fontSize: '13px', padding: { x: 4, y: 1 } });
 
     const inicioBarra = LARGURA / 2 - ((TAMANHO_BARRA - 1) * ESPACO_BARRA) / 2;
     for (let i = 0; i < TAMANHO_BARRA; i++) {
@@ -91,6 +102,12 @@ export class Hud {
     this.barraEnergia.setSize(Math.max(0, LARGURA_BARRA_ENERGIA * fracao), 12);
     this.barraEnergia.setFillStyle(fracao > 0.5 ? 0x5ac85a : fracao > 0.2 ? 0xe0c040 : 0xd04040);
     this.textoEnergia.setText(`Energia ${this.energia.atual}`);
+
+    const { fome, essencia } = this.vampiro;
+    this.barraFome.setSize(LARGURA_BARRA_ENERGIA * (fome / 100), 12);
+    const sinal = sinalVisivel(this.vampiro, dia);
+    this.textoFome.setText(`Fome ${Math.round(fome)}${sinal ? ` · ${sinal}` : ''}${essencia ? ` · essência ${essencia}` : ''}`);
+    this.textoFome.setColor(sinal ? '#ff8080' : '#ffffff');
 
     this.atualizarBarra();
 

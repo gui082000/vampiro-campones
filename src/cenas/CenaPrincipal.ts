@@ -17,6 +17,10 @@ import { Avisos } from '../interface/Avisos';
 import { Dialogo } from '../interface/Dialogo';
 import { TelaDoDiario } from '../interface/TelaDoDiario';
 import { Aldeoes } from '../sistemas/Aldeoes';
+import { Caca } from '../sistemas/Caca';
+import { Vampirismo } from '../sistemas/Vampirismo';
+import { Vampiro } from '../estado/Vampiro';
+import { FimDeJogo } from '../interface/FimDeJogo';
 import { Escurecimento } from '../interface/Escurecimento';
 import { Hud } from '../interface/Hud';
 import { Menu } from '../interface/Menu';
@@ -60,6 +64,9 @@ export class CenaPrincipal extends Phaser.Scene {
   private dialogo!: Dialogo;
   private telaDoDiario!: TelaDoDiario;
   aldeoes!: Aldeoes;
+  caca!: Caca;
+  vampirismo!: Vampirismo;
+  private fimDeJogo!: FimDeJogo;
 
   constructor() {
     super('CenaPrincipal');
@@ -93,6 +100,8 @@ export class CenaPrincipal extends Phaser.Scene {
       relacoes: new Relacoes(),
       missoes: new Missoes(),
       diario: new Diario(),
+      vampiro: new Vampiro(),
+      cofre: new Recipiente(TAMANHO_DEPOSITO),
     };
 
     const inicio = mapa.centroDaCelula(INICIO_JOGADOR);
@@ -121,9 +130,12 @@ export class CenaPrincipal extends Phaser.Scene {
     this.animais = new Animais(this.mundo, construcao);
     new Casa(this.mundo, this.interiores, this.transicao, this.telaDoInventario, artesanato);
     this.atalhos = new BarraDeAtalhos(this.mundo);
+    this.caca = new Caca(this.mundo);
+    this.fimDeJogo = new FimDeJogo(this, controle);
+    this.vampirismo = new Vampirismo(this.mundo, this.jogador, this.interiores, this.fimDeJogo);
 
     this.escurecimento = new Escurecimento(this);
-    this.hud = new Hud(this, relogio, this.mundo.inventario, this.mundo.energia, this.mundo.interacao);
+    this.hud = new Hud(this, relogio, this.mundo.inventario, this.mundo.energia, this.mundo.interacao, this.mundo.vampiro);
 
     // Estação: tom do mapa e aviso no primeiro dia
     mapa.aplicarEstacao(relogio.estacao);
@@ -139,7 +151,7 @@ export class CenaPrincipal extends Phaser.Scene {
 
     // O relógio para enquanto há uma janela aberta (menu, inventário, conversa, diário)
     const janelaAberta =
-      menu.estaAberto || this.telaDoInventario.estaAberta || this.dialogo.estaAberto || this.telaDoDiario.estaAberta;
+      this.fimDeJogo.estaAberta || menu.estaAberto || this.telaDoInventario.estaAberta || this.dialogo.estaAberto || this.telaDoDiario.estaAberta;
     if (!janelaAberta && !this.transicao.emAndamento) {
       relogio.avancar(delta);
     }
@@ -156,8 +168,11 @@ export class CenaPrincipal extends Phaser.Scene {
     interacao.atualizar(this.jogador.celulaDaFrente);
     this.animais.atualizar(delta);
     this.aldeoes.atualizar(delta);
+    this.caca.atualizar();
+    this.vampirismo.atualizar();
+    this.fimDeJogo.atualizar();
 
-    this.escurecimento.atualizar(relogio.hora);
+    this.escurecimento.atualizar(relogio.hora, this.vampirismo.visao);
     avisos.atualizar(delta);
     this.hud.atualizar();
   }

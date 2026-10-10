@@ -17,7 +17,10 @@ export type TipoDeMovel =
   | 'banco'
   | 'estante'
   | 'lareira'
-  | 'barril';
+  | 'barril'
+  | 'caixao'
+  | 'cofre'
+  | 'altarDeSangue';
 
 export interface Movel {
   tipo: TipoDeMovel;
@@ -133,6 +136,18 @@ export const INTERIORES = {
       { tipo: 'estante', nome: 'Armadilhas', coluna: 0, linha: 0, colunas: 2, linhas: 1, texto: 'Armadilhas de ferro, bem cuidadas. Grandes demais para lobo.' },
       { tipo: 'mesa', nome: 'Mesa', coluna: 3, linha: 2, colunas: 2, linhas: 1, texto: 'Um mapa da floresta com marcas vermelhas, todas perto da colina.', pista: true },
       { tipo: 'cama', nome: 'Catre', coluna: 6, linha: 0, colunas: 1, linhas: 2, texto: 'Duro e frio.' },
+    ],
+  },
+  porao: {
+    nome: 'Porão',
+    colunas: 9,
+    linhas: 7,
+    estilo: 'pedra',
+    moveis: [
+      { tipo: 'caixao', nome: 'Caixão', coluna: 0, linha: 0, colunas: 1, linhas: 2 },
+      { tipo: 'cofre', nome: 'Cofre', coluna: 6, linha: 0, colunas: 1, linhas: 1 },
+      { tipo: 'altarDeSangue', nome: 'Altar', coluna: 3, linha: 0, colunas: 1, linhas: 1 },
+      { tipo: 'estante', nome: 'Diários do tio', coluna: 6, linha: 3, colunas: 1, linhas: 1, texto: 'Cadernos do tio Joaquim, molhados e colados. Dá para ler só uma frase: "Ela nunca para de ter fome."', pista: true },
     ],
   },
 } satisfies Record<string, DefinicaoDeInterior>;

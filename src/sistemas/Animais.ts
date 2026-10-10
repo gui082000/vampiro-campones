@@ -19,6 +19,8 @@ import {
   recolherDoAnimal,
   type Animal,
 } from '../estado/Criacao';
+import { ALIMENTOS } from '../dados/vampiro';
+import { beber } from '../estado/Vampiro';
 import type { AreaDeCelulas } from '../util/areas';
 import type { Construcao } from './Construcao';
 import { TAMANHO_CELULA } from './Mapa';
@@ -134,7 +136,27 @@ export class Animais {
       largura: tamanho * 1.6 + 8,
       altura: tamanho + 12,
       dica: () => (animal.produtoPronto ? `${animal.nome} · E: pegar ${nomeDoProduto}` : `${animal.nome} · sem ${nomeDoProduto} hoje`),
-      acao: () => avisos.mostrar(recolherDoAnimal(animal, inventario).aviso),
+      acao: () => {
+        if (!this.mundo.relogio.eNoite) {
+          avisos.mostrar(recolherDoAnimal(animal, inventario).aviso);
+          return;
+        }
+        this.mundo.menu.abrir(`${animal.nome} cochila no escuro.`, () => [
+          ...(animal.produtoPronto ? [{ texto: `Pegar ${nomeDoProduto}`, aoEscolher: () => { avisos.mostrar(recolherDoAnimal(animal, inventario).aviso); return 'fechar' as const; } }] : []),
+          {
+            texto: `Beber de ${animal.nome}`,
+            detalhe: ALIMENTOS.animalDaFazenda.descricao,
+            ativa: !animal.fraco,
+            aoEscolher: () => {
+              animal.fraco = true;
+              animal.produtoPronto = false;
+              avisos.mostrar(beber(this.mundo.vampiro, 'animalDaFazenda', animal.nome).aviso);
+              return 'fechar' as const;
+            },
+          },
+          { texto: 'Deixar dormir', aoEscolher: () => 'fechar' as const },
+        ]);
+      },
     });
   }
 

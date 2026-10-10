@@ -19,7 +19,8 @@
 //   {"esperarAte": "expressão", "maxQuadros": 600}  avança quadros até a expressão dar true
 //   {"conferir": "expressão", "rotulo": "texto"}  como js, mas o teste falha se não der true
 import { spawn } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { basename, join, resolve } from 'node:path';
 
 const [, , roteiroArq, saidaArg, url = 'http://localhost:5173/'] = process.argv;
@@ -39,7 +40,8 @@ const navegador = spawn(
   [
     '--headless=new',
     `--remote-debugging-port=${PORTA}`,
-    `--user-data-dir=${join(saida, 'perfil-navegador')}`,
+    // perfil novo a cada vez: uma pasta presa por outro navegador impedia de abrir
+    `--user-data-dir=${mkdtempSync(join(tmpdir(), 'perfil-jogo-'))}`,
     '--window-size=800,600',
     '--no-first-run',
     '--no-default-browser-check',

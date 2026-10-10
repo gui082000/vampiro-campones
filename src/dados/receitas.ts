@@ -9,7 +9,7 @@ export interface Receita {
 }
 
 // Bancada: ferramentas e materiais. Cozinha (melhoria da casa): comidas.
-// As receitas do vampiro estão bloqueadas até a Fase 4 (fome e sinais do vampirismo).
+// As receitas do vampiro aparecem depois da primeira mordida.
 export const RECEITAS = {
   varaDePesca: { resultado: 'varaDePesca', quantidade: 1, ingredientes: { madeira: 5, fibra: 3 }, local: 'bancada' },
   feno: { resultado: 'feno', quantidade: 2, ingredientes: { fibra: 4 }, local: 'bancada' },

@@ -15,6 +15,7 @@ export interface Animal {
   especie: Especie;
   nome: string;
   produtoPronto: boolean; // comeu ontem e tem ovo/leite para recolher
+  fraco?: boolean; // o vampiro bebeu dele: não produz no dia seguinte
 }
 
 export interface DadosDoAbrigo {
@@ -82,7 +83,8 @@ export function passarDiaDaCriacao(criacao: Criacao, temPasto: boolean, estacao:
         dados.comedouro -= 1;
         comeu = true;
       }
-      if (comeu) animal.produtoPronto = true;
+      if (comeu && !animal.fraco) animal.produtoPronto = true;
+      animal.fraco = false;
     }
   }
 }

@@ -22,7 +22,7 @@ export class Artesanato {
   abrir(local: Receita['local']) {
     const { menu, inventario, avisos } = this.mundo;
     menu.abrir(local === 'bancada' ? 'Bancada' : 'Cozinha', () => [
-      ...receitasDe(local).map((id) => {
+      ...receitasDe(local, this.mundo.vampiro.jaMordeu).map((id) => {
         const receita: Receita = RECEITAS[id];
         const quantidade = receita.quantidade > 1 ? ` ×${receita.quantidade}` : '';
         return {

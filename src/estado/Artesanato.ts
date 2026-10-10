@@ -8,10 +8,10 @@ function ingredientes(receita: Receita): [IdItem, number][] {
 }
 
 // Receitas que aparecem para o jogador naquele lugar (as bloqueadas ficam de fora)
-export function receitasDe(local: Receita['local']): IdReceita[] {
+export function receitasDe(local: Receita['local'], vampiroLiberado = false): IdReceita[] {
   return (Object.keys(RECEITAS) as IdReceita[]).filter((id) => {
     const receita: Receita = RECEITAS[id];
-    return receita.local === local && !receita.bloqueada;
+    return receita.local === local && (!receita.bloqueada || vampiroLiberado);
   });
 }
 

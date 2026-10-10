@@ -59,6 +59,13 @@ export const CONSTRUCOES = {
     moedas: 30,
     materiais: { madeira: 20 },
   },
+  porao: {
+    nome: 'Porão reformado',
+    descricao: 'Abre o alçapão: um esconderijo com caixão (dormir de dia), cofre e o altar dos poderes.',
+    onde: 'casa',
+    moedas: 120,
+    materiais: { madeira: 20, pedra: 30 },
+  },
 } satisfies Record<string, DefinicaoDeConstrucao>;
 
 export type IdConstrucao = keyof typeof CONSTRUCOES;

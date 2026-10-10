@@ -4,6 +4,7 @@ import type { Criacao } from '../estado/Criacao';
 import type { Diario } from '../estado/Diario';
 import type { Missoes } from '../estado/Missoes';
 import type { Relacoes } from '../estado/Relacoes';
+import type { Vampiro } from '../estado/Vampiro';
 import type { Energia } from '../estado/Energia';
 import type { Inventario } from '../estado/Inventario';
 import type { Recipiente } from '../estado/Recipiente';
@@ -34,6 +35,8 @@ export interface Mundo {
   relacoes: Relacoes;
   missoes: Missoes;
   diario: Diario;
+  vampiro: Vampiro;
+  cofre: Recipiente; // cofre do porão
 }
 
 // Anota uma pista no diário e avisa, só na primeira vez

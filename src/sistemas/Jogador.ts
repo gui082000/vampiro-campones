@@ -29,6 +29,7 @@ const PASSO: Record<Olhar, [number, number]> = {
 export class Jogador {
   sprite: Phaser.Physics.Arcade.Sprite;
   olhar: Olhar = 'baixo';
+  multiplicadorDeVelocidade = 1; // mudado pelo vampirismo (noite, fome)
 
   private setas: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd: Record<'W' | 'A' | 'S' | 'D', Phaser.Input.Keyboard.Key>;
@@ -93,7 +94,8 @@ export class Jogador {
     }
 
     const direcao = new Phaser.Math.Vector2(x, y).normalize();
-    this.sprite.setVelocity(direcao.x * VELOCIDADE_JOGADOR, direcao.y * VELOCIDADE_JOGADOR);
+    const velocidade = VELOCIDADE_JOGADOR * this.multiplicadorDeVelocidade;
+    this.sprite.setVelocity(direcao.x * velocidade, direcao.y * velocidade);
     this.sprite.setDepth(profundidadeNoMundo(this.sprite.y + CENTRO_DOS_PES.y));
 
     if (x === 0 && y === 0) {

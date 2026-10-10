@@ -297,6 +297,9 @@ const COR_DO_MOVEL: Record<TipoDeMovel, number> = {
   estante: 0x5e3b1c,
   lareira: 0x6a5a5a,
   barril: 0x8a5a2a,
+  caixao: 0x2a1a14,
+  cofre: 0x5a5a64,
+  altarDeSangue: 0x6a1020,
 };
 
 // Sala inteira (piso e paredes). r = retângulo da sala com as paredes; porta = célula da saída.

@@ -19,6 +19,13 @@ export class Relacoes {
     (Object.keys(ALDEOES) as IdAldeao[]).map((id) => [id, { pontos: 0, conversouHoje: false, presenteHoje: false }]),
   ) as Record<IdAldeao, RelacaoComAldeao>;
 
+  mortos: IdAldeao[] = []; // mortos pelo Tomás (ou, mais tarde, por outras causas)
+  fracoNoDia: Partial<Record<IdAldeao, number>> = {}; // mordido sem morrer: acorda fraco
+
+  vivo(id: IdAldeao): boolean {
+    return !this.mortos.includes(id);
+  }
+
   coracoes(id: IdAldeao): number {
     return Math.floor(this.porAldeao[id].pontos / PONTOS_POR_CORACAO);
   }
@@ -34,6 +41,13 @@ export class Relacoes {
       r.presenteHoje = false;
     }
   }
+}
+
+// O Tomás matou o aldeão: a vila inteira fica mais fria com ele (1 coração a menos)
+export function registrarMorte(relacoes: Relacoes, id: IdAldeao) {
+  if (!relacoes.vivo(id)) return;
+  relacoes.mortos.push(id);
+  for (const outro of Object.keys(ALDEOES) as IdAldeao[]) if (outro !== id) relacoes.somar(outro, -PONTOS_POR_CORACAO);
 }
 
 // O que o aldeão diz hoje: uma fala da faixa da amizade, que muda a cada dia.

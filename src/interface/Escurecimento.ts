@@ -34,7 +34,8 @@ export class Escurecimento {
       .setDepth(CAMADA.noite);
   }
 
-  atualizar(hora: number) {
-    this.camada.setAlpha(escuridaoDaHora(hora) * ESCURIDAO_MAXIMA);
+  // visao: 1 = escuridão normal; menor = o vampiro enxerga melhor no escuro
+  atualizar(hora: number, visao = 1) {
+    this.camada.setAlpha(escuridaoDaHora(hora) * ESCURIDAO_MAXIMA * visao);
   }
 }

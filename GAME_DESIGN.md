@@ -44,7 +44,7 @@ Jogo 2D top-down de vida no campo + sobrevivência (referências: Stardew Valley
   O `passou` chega em pedaços que são todos de dia ou todos de noite (até quando o Tomás dorme).
 - No modo de desenvolvimento, o jogo fica acessível no console do navegador como `jogo`.
 
-**Controles:** J abre o diário · WASD ou setas andam · E usa o que está à frente do Tomás (com o item da mão) · 1 a 8 ou a
+**Controles:** J abre o diário · à noite, E em alguém dormindo (ou num animal) oferece morder · WASD ou setas andam · E usa o que está à frente do Tomás (com o item da mão) · 1 a 8 ou a
 rodinha do mouse escolhem o item · F come o item da mão · I abre o inventário · Esc ou Q fecham menus ·
 Tab troca de lado no depósito.
 
@@ -250,6 +250,24 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
 - A casa do Bento ficou na cidade; a casa vazia ao norte (porta virada para o rio) não é usada.
 - Crianças não aparecem como vítimas: os desaparecidos citados são todos adultos.
 
+**Fase 4 (2026-10-10):**
+- Fome de 0 a 100: +0,9/hora de dia e +1,6/hora à noite. Com 70 ou mais o Tomás fica mais lento. Sinais:
+  palidez (50), olhos vermelhos (75), presas à mostra (90); os aldeões notam ao conversar.
+- Dois dias inteiros terminando com fome 100 = fim de jogo ("A fome venceu"). Por enquanto E recomeça do zero.
+- Sol: de 10h às 16h, fora de casa e com fome 50+, cansa 3 de energia por hora (o unguento evita).
+  Amanhecer do lado de fora queima: -40 de energia e +20 de fome. Dentro de qualquer prédio está a salvo.
+- À noite: 35% mais rápido (mais 25% com o poder Velocidade) e a noite escurece menos para ele.
+- Alimentação: animal da fazenda (-15, fica fraco e não produz no dia seguinte), cervo na floresta à noite
+  (-25), viajante acampado perto do portão em algumas noites (sempre na 1ª) (-30 um pouco / -60 até o fim),
+  aldeão dormindo em casa (-35 um pouco / zera matando). Sem hipnose, quem é mordido lembra (perde 3 corações).
+  Matar um aldeão: ele some, as missões dele acabam e todos os outros perdem 1 coração.
+- Tudo o que acontece à noite fica registrado (testemunhas, desaparecidos, sinais vistos) para a suspeita da Fase 5.
+- Essência vem de cada mordida e compra poderes no altar do porão. Névoa e morcego ficaram para a Fase 8.
+- Porão: reformado pela mesa da casa; caixão (dormir até 6h ou até 19h), cofre e altar. Lá estão os
+  diários do tio (uma pista).
+- A primeira mordida libera na bancada as receitas do vampiro: unguento contra o sol, ervas de disfarce
+  (escondem os sinais por um dia) e tônico rubro (-20 de fome), usados com F.
+
 ## 9. Decisões pendentes
 
 - Mapa em imagem única: as árvores pintadas no mapa sempre ficam por baixo do Tomás. Resolver na arte final
@@ -278,8 +296,8 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
 - [x] **Fase 2 – Mundo e vila:** Vale Cinzento (igreja, taverna, loja, casas, armazém, solar), cemitério,
   floresta com cabana, colina trancada, interiores dos prédios.
 - [x] **Fase 3 – Aldeões:** 9 aldeões com rotina, falas por amizade, presentes, 15 missões, loja da Dona Cida, diário (J).
-- [ ] **Fase 4 – Vampirismo:** fome, modo noturno, as 4 formas de alimentação, sinais físicos,
-  esconderijo/porão, poderes iniciais.
+- [x] **Fase 4 – Vampirismo:** fome, modo noturno, alimentação (animais, cervos, viajantes, aldeões; com e
+  sem matar), sinais físicos, sol, porão (caixão, cofre, altar), poderes velocidade/visão noturna/hipnose.
 - [ ] **Fase 5 – Caça e suspeita:** furtividade, testemunhas, evidências, suspeita com faixas e reação da vila,
   Orlando e as rondas.
 - [ ] **Fase 6 – Salvar/carregar,** menus, tela inicial, pausa, opções.
