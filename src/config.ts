@@ -12,7 +12,7 @@ export const ALTURA = 600;
 export const VELOCIDADE_JOGADOR = 160; // pixels por segundo
 
 // Tempo
-export const SEGUNDOS_POR_HORA = 5; // 1 hora do jogo = 5 segundos reais (dia completo = 2 minutos)
+export const SEGUNDOS_POR_HORA = 12; // 1 hora do jogo = 12 segundos reais (dia completo = 4,8 minutos)
 export const HORA_INICIAL = 7; // o jogo começa às 7h do dia 1
 export const HORA_NOVO_DIA = 6; // o contador de dias vira às 6h (a madrugada ainda conta como o dia anterior)
 export const HORA_AMANHECER = 6; // a partir daqui é dia: Tomás volta a ser só um camponês

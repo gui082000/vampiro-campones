@@ -3,10 +3,11 @@ import { ESPECIES, type Especie } from '../dados/animais';
 import type { IdConstrucao } from '../dados/construcoes';
 import { PLANTAS } from '../dados/plantas';
 import type { TipoDeRecurso } from '../dados/recursos';
+import type { EstiloDeSala, TipoDeMovel } from '../dados/interiores';
+import type { EstiloDePredio } from '../dados/vila';
 import { estaPronto, progresso, type Canteiro } from '../estado/Plantacao';
 import type { Retangulo } from '../util/areas';
 import { CAMADA, profundidadeNoMundo } from './Camadas';
-import { FRAME, TILE, criarEstrutura } from './Tileset';
 
 // Desenho dos objetos do mundo. Quase tudo é provisório, feito com formas e cores.
 // Para trocar por sprites, mude estas funções mantendo o que elas recebem e devolvem.
@@ -174,14 +175,6 @@ export function criarRotulo(scene: Phaser.Scene, x: number, y: number, texto: st
     .setDepth(CAMADA.rotulos);
 }
 
-export function desenharBarraca(scene: Phaser.Scene, r: Retangulo) {
-  const largura = FRAME.barraca[0].length * TILE;
-  const altura = FRAME.barraca.length * TILE;
-  const imagens = criarEstrutura(scene, FRAME.barraca, r.x - largura / 2, r.y - altura / 2, 0);
-  for (const img of imagens) img.setDepth(profundidadeNoMundo(r.y + r.altura / 2));
-  criarRotulo(scene, r.x, r.y - r.altura / 2 - 12, 'Barraca de sementes');
-}
-
 export function desenharCaixaDeVenda(scene: Phaser.Scene, r: Retangulo) {
   const g = scene.add.graphics({ x: r.x, y: r.y }).setDepth(profundidadeNoMundo(r.y + r.altura / 2));
   g.fillStyle(COR.madeira, 1);
@@ -206,12 +199,151 @@ export function desenharBancada(scene: Phaser.Scene, r: Retangulo) {
   criarRotulo(scene, r.x, r.y - r.altura / 2 - 14, 'Bancada');
 }
 
-export function desenharPorta(scene: Phaser.Scene, r: Retangulo) {
-  const g = scene.add.graphics({ x: r.x, y: r.y }).setDepth(CAMADA.chao);
+// ---------- Vila: prédios, lápides, placas ----------
+
+const ESTILO_DO_PREDIO: Record<EstiloDePredio, { parede: number; telhado: number }> = {
+  casa: { parede: 0xb89a6e, telhado: 0x7a3a28 },
+  igreja: { parede: 0xc8c4bc, telhado: 0x4a4e5e },
+  taverna: { parede: 0x9a6a40, telhado: 0x5e2a1c },
+  loja: { parede: 0xc0a070, telhado: 0x2e5a3a },
+  solar: { parede: 0x8a8a92, telhado: 0x2e2e3a },
+  cabana: { parede: 0x6e4a2a, telhado: 0x3e5a2a },
+  ruina: { parede: 0x4a4650, telhado: 0x2a2630 },
+  armazem: { parede: 0x8a6a4a, telhado: 0x5a4a3a },
+};
+
+// Prédio sobre o bloco do mapa: paredes, telhado, porta e a placa com o nome
+export function desenharPredio(scene: Phaser.Scene, r: Retangulo, porta: Retangulo, estilo: EstiloDePredio, nome: string) {
+  const { parede, telhado } = ESTILO_DO_PREDIO[estilo];
+  const g = scene.add.graphics().setDepth(profundidadeNoMundo(r.y + r.altura / 2));
+  const esquerda = r.x - r.largura / 2;
+  const topo = r.y - r.altura / 2;
+  const alturaTelhado = Math.min(r.altura * 0.45, 96);
+
+  g.fillStyle(parede, 1);
+  g.fillRect(esquerda, topo + alturaTelhado * 0.6, r.largura, r.altura - alturaTelhado * 0.6);
+  g.fillStyle(telhado, 1);
+  g.fillRect(esquerda - 4, topo, r.largura + 8, alturaTelhado);
+  g.fillStyle(0x000000, 0.18);
+  g.fillRect(esquerda - 4, topo + alturaTelhado - 6, r.largura + 8, 6);
+  // janelas
+  g.fillStyle(estilo === 'ruina' ? 0x101014 : 0xe8d890, estilo === 'ruina' ? 1 : 0.85);
+  for (let x = esquerda + 24; x < esquerda + r.largura - 24; x += 64) {
+    if (Math.abs(x + 8 - porta.x) < 40) continue;
+    g.fillRect(x, topo + alturaTelhado + 14, 16, 14);
+  }
+  if (estilo === 'igreja') {
+    g.fillStyle(0xd8d4cc, 1);
+    g.fillRect(r.x - 3, topo - 30, 6, 30);
+    g.fillRect(r.x - 12, topo - 22, 24, 5);
+  }
+  // porta
+  g.fillStyle(estilo === 'ruina' ? 0x3a3a40 : COR.madeiraEscura, 1);
+  g.fillRect(porta.x - 12, porta.y - 14, 24, 30);
+  if (estilo === 'ruina') {
+    g.lineStyle(2, 0x6a6a70, 1);
+    for (let x = -9; x <= 9; x += 6) g.lineBetween(porta.x + x, porta.y - 14, porta.x + x, porta.y + 16);
+  } else {
+    g.fillStyle(0xd8b040, 1);
+    g.fillCircle(porta.x + 6, porta.y + 2, 2);
+  }
+  criarRotulo(scene, r.x, topo + alturaTelhado / 2, nome);
+}
+
+// Lápide (x,y = centro da célula)
+export function desenharLapide(scene: Phaser.Scene, x: number, y: number) {
+  const g = scene.add.graphics({ x, y }).setDepth(profundidadeNoMundo(y + 12));
+  g.fillStyle(0x8a8a94, 1);
+  g.fillRoundedRect(-8, -12, 16, 22, 6);
+  g.fillStyle(0x5a5a64, 1);
+  g.fillRect(-1, -7, 2, 9);
+  g.fillRect(-4, -4, 8, 2);
+  g.fillStyle(0x4a6a3a, 1);
+  g.fillRect(-10, 9, 20, 3);
+}
+
+export function desenharCercaDoCemiterio(scene: Phaser.Scene, r: Retangulo) {
+  const g = scene.add.graphics().setDepth(CAMADA.chao);
+  g.lineStyle(2, 0x2a2a30, 1);
+  g.strokeRect(r.x - r.largura / 2 + 4, r.y - r.altura / 2 + 4, r.largura - 8, r.altura - 8);
+}
+
+export function desenharPlaca(scene: Phaser.Scene, x: number, y: number) {
+  const g = scene.add.graphics({ x, y }).setDepth(profundidadeNoMundo(y + 12));
   g.fillStyle(COR.madeiraEscura, 1);
-  g.fillRect(-11, -14, 22, 28);
-  g.fillStyle(0xd8b040, 1);
-  g.fillCircle(6, 1, 2);
+  g.fillRect(-2, -2, 4, 16);
+  g.fillStyle(COR.madeira, 1);
+  g.fillRect(-12, -12, 24, 12);
+}
+
+// ---------- Interiores ----------
+
+const CORES_DA_SALA: Record<EstiloDeSala, { piso: number; parede: number }> = {
+  madeira: { piso: 0x8a6440, parede: 0x4a3020 },
+  pedra: { piso: 0x7a7880, parede: 0x3a3a44 },
+  taverna: { piso: 0x6e4a2e, parede: 0x3a2416 },
+};
+
+const COR_DO_MOVEL: Record<TipoDeMovel, number> = {
+  cama: 0xa04040,
+  mesa: 0x8b5a2b,
+  fogao: 0x3a3a3a,
+  bau: 0x9a6a2a,
+  alcapao: 0x4a3a2a,
+  balcaoDaLoja: 0x6b4423,
+  balcao: 0x6b4423,
+  altar: 0xd8d0c0,
+  banco: 0x7a5030,
+  estante: 0x5e3b1c,
+  lareira: 0x6a5a5a,
+  barril: 0x8a5a2a,
+};
+
+// Sala inteira (piso e paredes). r = retângulo da sala com as paredes; porta = célula da saída.
+export function desenharSala(scene: Phaser.Scene, r: Retangulo, porta: Retangulo, estilo: EstiloDeSala) {
+  const { piso, parede } = CORES_DA_SALA[estilo];
+  const g = scene.add.graphics().setDepth(CAMADA.chao);
+  g.fillStyle(parede, 1);
+  g.fillRect(r.x - r.largura / 2, r.y - r.altura / 2, r.largura, r.altura);
+  g.fillStyle(piso, 1);
+  g.fillRect(r.x - r.largura / 2 + 32, r.y - r.altura / 2 + 32, r.largura - 64, r.altura - 64);
+  g.lineStyle(1, 0x000000, 0.15);
+  for (let y = r.y - r.altura / 2 + 32; y < r.y + r.altura / 2 - 32; y += 16) {
+    g.lineBetween(r.x - r.largura / 2 + 32, y, r.x + r.largura / 2 - 32, y);
+  }
+  g.fillStyle(0xd8c890, 1); // tapete de saída
+  g.fillRect(porta.x - 14, porta.y - 12, 28, 24);
+}
+
+export function desenharMovel(scene: Phaser.Scene, r: Retangulo, tipo: TipoDeMovel) {
+  const g = scene.add.graphics({ x: r.x, y: r.y }).setDepth(profundidadeNoMundo(r.y + r.altura / 2));
+  const l = r.largura / 2 - 2;
+  const a = r.altura / 2 - 2;
+  g.fillStyle(COR_DO_MOVEL[tipo], 1);
+  if (tipo === 'barril') {
+    g.fillCircle(0, 0, 13);
+    g.lineStyle(2, 0x3a2410, 1);
+    g.strokeCircle(0, 0, 13);
+    return;
+  }
+  if (tipo === 'alcapao') {
+    g.fillRect(-l, -a, l * 2, a * 2);
+    g.lineStyle(2, 0x8a8a8a, 1);
+    g.lineBetween(-l, -a, l, a);
+    g.lineBetween(l, -a, -l, a);
+    return;
+  }
+  g.fillRect(-l, -a, l * 2, a * 2);
+  if (tipo === 'cama') {
+    g.fillStyle(0xf0eadc, 1);
+    g.fillRect(-l + 4, -a + 4, l * 2 - 8, 14);
+  } else if (tipo === 'lareira' || tipo === 'fogao') {
+    g.fillStyle(0xe07020, 1);
+    g.fillRect(-l / 2, -a / 2 + 4, l, a);
+  } else if (tipo === 'estante') {
+    g.fillStyle(0x3a2410, 1);
+    for (let x = -l + 4; x < l - 4; x += 10) g.fillRect(x, -a + 3, 6, a * 2 - 6);
+  }
 }
 
 // Terreno vazio onde algo pode ser construído. Devolve o que precisa sumir depois.

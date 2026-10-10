@@ -71,6 +71,15 @@ export class Jogador {
     return { coluna: coluna + dx, linha: linha + dy };
   }
 
+  // Põe o Tomás com os pés na célula, olhando para a direção dada (ao entrar e sair de prédios)
+  teleportar(coluna: number, linha: number, olhar: Olhar) {
+    const x = coluna * TAMANHO_CELULA + TAMANHO_CELULA / 2 - CENTRO_DOS_PES.x;
+    const y = linha * TAMANHO_CELULA + TAMANHO_CELULA / 2 - CENTRO_DOS_PES.y;
+    (this.sprite.body as Phaser.Physics.Arcade.Body).reset(x, y);
+    this.olhar = olhar;
+    if (olhar === 'cima' || olhar === 'baixo') this.direcao = olhar;
+  }
+
   // livre: falso enquanto há um menu aberto ou ele está ocupado (pescando, dormindo)
   atualizar(livre: boolean) {
     let x = 0;

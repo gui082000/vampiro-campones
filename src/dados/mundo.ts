@@ -10,9 +10,6 @@ import type { TipoDeRecurso } from './recursos';
 // Célula onde o Tomás aparece no começo: na frente da casa do camponês
 export const INICIO_JOGADOR = { coluna: 106, linha: 15 };
 
-// Porta da casa (na parede de baixo): dormir, melhorias, cozinha e depósito
-export const PORTA_DA_CASA: AreaDeCelulas = { coluna: 106, linha: 13, colunas: 1, linhas: 1 };
-
 // O campo cercado ao lado da casa, onde dá para arar e plantar. A parte da esquerda
 // tem entrada pelo vão da cerca do meio (linhas 25-26); a da direita, pelo alto (101-102).
 export const AREAS_DE_PLANTIO: AreaDeCelulas[] = [
@@ -20,8 +17,7 @@ export const AREAS_DE_PLANTIO: AreaDeCelulas[] = [
   { coluna: 100, linha: 19, colunas: 4, linhas: 12 },
 ];
 
-// Estações provisórias no pátio da casa, até a vila existir (Fase 2)
-export const BARRACA_DE_SEMENTES: AreaDeCelulas = { coluna: 97, linha: 13, colunas: 2, linhas: 3 };
+// No pátio da casa (as sementes agora se compram no balcão da loja da vila)
 export const CAIXA_DE_VENDA: AreaDeCelulas = { coluna: 103, linha: 14, colunas: 2, linhas: 1 };
 export const BANCADA: AreaDeCelulas = { coluna: 100, linha: 12, colunas: 2, linhas: 1 };
 
@@ -48,6 +44,11 @@ export const AREAS_DE_RECURSOS: { tipo: TipoDeRecurso; quantidade: number; area:
   { tipo: 'pedra', quantidade: 8, area: { coluna: 126, linha: 17, colunas: 5, linhas: 12 } },
   { tipo: 'arbusto', quantidade: 4, area: { coluna: 126, linha: 17, colunas: 5, linhas: 12 } },
   { tipo: 'mato', quantidade: 10, area: { coluna: 109, linha: 17, colunas: 3, linhas: 13 } },
+  // Floresta, em volta da cabana do caçador
+  { tipo: 'arvore', quantidade: 16, area: { coluna: 158, linha: 20, colunas: 28, linhas: 12 } },
+  { tipo: 'cogumelo', quantidade: 6, area: { coluna: 158, linha: 20, colunas: 28, linhas: 12 } },
+  { tipo: 'erva', quantidade: 6, area: { coluna: 158, linha: 20, colunas: 28, linhas: 12 } },
+  { tipo: 'arbusto', quantidade: 4, area: { coluna: 158, linha: 20, colunas: 28, linhas: 12 } },
 ];
 
 // Semente do sorteio das posições: mudar o número muda onde os recursos aparecem

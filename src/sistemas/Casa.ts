@@ -1,62 +1,62 @@
-import { desenharPorta } from '../arte/Objetos';
 import { ENERGIA_AO_ACORDAR_NA_PALHA, HORA_ACORDAR } from '../config';
 import { CONSTRUCOES, type IdConstrucao } from '../dados/construcoes';
-import { PORTA_DA_CASA } from '../dados/mundo';
 import { textoDaData } from '../estado/Calendario';
 import { construir, faltaPara, textoDoCusto } from '../estado/Construcoes';
 import type { TelaDoInventario } from '../interface/TelaDoInventario';
 import type { Transicao } from '../interface/Transicao';
 import type { Artesanato } from './Artesanato';
+import type { Interiores } from './Interiores';
 import type { Mundo } from './Mundo';
 
 const MELHORIAS: IdConstrucao[] = ['cama', 'cozinha', 'deposito'];
 
-// A porta da casa do Tomás: dormir até de manhã, cozinhar, abrir o depósito e
-// melhorar a casa (cama de madeira, cozinha, depósito).
+// A casa do Tomás por dentro: a cama (dormir), a mesa (melhorias), o fogão (cozinhar,
+// depois de construir a cozinha), o baú (depósito) e o alçapão do porão, trancado.
 export class Casa {
   private mundo: Mundo;
   private transicao: Transicao;
-  private telaDoInventario: TelaDoInventario;
-  private artesanato: Artesanato;
 
-  constructor(mundo: Mundo, transicao: Transicao, telaDoInventario: TelaDoInventario, artesanato: Artesanato) {
+  constructor(mundo: Mundo, interiores: Interiores, transicao: Transicao, telaDoInventario: TelaDoInventario, artesanato: Artesanato) {
     this.mundo = mundo;
     this.transicao = transicao;
-    this.telaDoInventario = telaDoInventario;
-    this.artesanato = artesanato;
+    const { construcoes, deposito, avisos } = mundo;
 
-    const r = mundo.mapa.areaEmPixels(PORTA_DA_CASA);
-    desenharPorta(mundo.cena, r);
-    mundo.interacao.registrar({ ...r, dica: () => 'Casa · E: entrar', acao: () => this.abrirMenu() });
+    interiores.definirUso('casaDoTomas', 'cama', {
+      dica: () => (construcoes.tem('cama') ? 'Cama de madeira · E: dormir' : 'Cama de palha · E: dormir'),
+      acao: () => this.perguntarSeDorme(),
+    });
+    interiores.definirUso('casaDoTomas', 'mesa', {
+      dica: () => 'Mesa · E: planejar melhorias',
+      acao: () => this.abrirMelhorias(),
+    });
+    interiores.definirUso('casaDoTomas', 'fogao', {
+      dica: () => (construcoes.tem('cozinha') ? 'Fogão · E: cozinhar' : 'Canto da cozinha · construa a cozinha (mesa)'),
+      acao: () => (construcoes.tem('cozinha') ? artesanato.abrir('cozinha') : avisos.mostrar('Ainda não há cozinha. Planeje na mesa.')),
+    });
+    interiores.definirUso('casaDoTomas', 'bau', {
+      dica: () => (construcoes.tem('deposito') ? 'Baú · E: abrir o depósito' : 'Lugar do baú · construa o depósito (mesa)'),
+      acao: () => (construcoes.tem('deposito') ? telaDoInventario.abrir(deposito) : avisos.mostrar('Ainda não há baú. Planeje na mesa.')),
+    });
+    interiores.definirUso('casaDoTomas', 'alcapao', {
+      dica: () => 'Alçapão do porão · trancado',
+      acao: () => avisos.mostrar('Trancado com correntes, pelo lado de baixo. Lá dentro, algo arranha a madeira.'),
+    });
   }
 
-  private abrirMenu() {
-    const { menu, construcoes, deposito } = this.mundo;
-    menu.abrir('Casa do Tomás', () => [
+  private perguntarSeDorme() {
+    const { menu, construcoes } = this.mundo;
+    menu.abrir('Dormir até de manhã?', () => [
       {
-        texto: 'Dormir até de manhã',
+        texto: 'Dormir',
         detalhe: `Acorda às ${HORA_ACORDAR}h com ${
           construcoes.tem('cama') ? 'toda a energia' : '80% da energia (a cama de madeira recupera tudo)'
         }. As plantas regadas continuam crescendo durante a noite.`,
         aoEscolher: () => {
           this.dormir();
-          return 'fechar';
+          return 'fechar' as const;
         },
       },
-      ...(construcoes.tem('cozinha') ? [{ texto: 'Cozinhar', aoEscolher: () => this.artesanato.abrir('cozinha') }] : []),
-      ...(construcoes.tem('deposito')
-        ? [
-            {
-              texto: 'Abrir o depósito',
-              aoEscolher: () => {
-                this.telaDoInventario.abrir(deposito);
-                return 'fechar' as const;
-              },
-            },
-          ]
-        : []),
-      { texto: 'Melhorar a casa...', aoEscolher: () => this.abrirMelhorias() },
-      { texto: 'Sair', aoEscolher: () => 'fechar' as const },
+      { texto: 'Ainda não', aoEscolher: () => 'fechar' as const },
     ]);
   }
 
@@ -74,7 +74,7 @@ export class Casa {
           aoEscolher: () => avisos.mostrar(construir(id, construcoes, inventario).aviso),
         };
       }),
-      { texto: 'Voltar', aoEscolher: () => this.abrirMenu() },
+      { texto: 'Fechar', aoEscolher: () => 'fechar' as const },
     ]);
   }
 

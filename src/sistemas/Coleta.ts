@@ -4,14 +4,13 @@ import {
   AREAS_DE_PLANTIO,
   AREAS_DE_RECURSOS,
   BANCADA,
-  BARRACA_DE_SEMENTES,
   CAIXA_DE_VENDA,
   INICIO_JOGADOR,
   LOCAIS_DE_CONSTRUCAO,
-  PORTA_DA_CASA,
   QUINTAL,
   SEMENTE_DOS_RECURSOS,
 } from '../dados/mundo';
+import { CEMITERIO, PLACAS, PREDIOS } from '../dados/vila';
 import { definicaoDoRecurso } from '../dados/recursos';
 import {
   dicaDoRecurso,
@@ -33,10 +32,11 @@ const PROIBIDAS: AreaDeCelulas[] = [
   ...AREAS_DE_PLANTIO,
   ...Object.values(LOCAIS_DE_CONSTRUCAO),
   ...Object.values(QUINTAL),
-  BARRACA_DE_SEMENTES,
   CAIXA_DE_VENDA,
   BANCADA,
-  PORTA_DA_CASA,
+  CEMITERIO.area,
+  ...Object.values(PREDIOS).flatMap((p) => [p.area, { coluna: p.porta.coluna, linha: p.porta.linha + 1, colunas: 1, linhas: 2 }]),
+  ...PLACAS.map((p) => ({ ...p, colunas: 1, linhas: 1 })),
   { ...INICIO_JOGADOR, colunas: 1, linhas: 1 },
 ].map((area) => comMargem(area, 1));
 

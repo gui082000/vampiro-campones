@@ -1,26 +1,27 @@
-import { desenharBarraca, desenharCaixaDeVenda } from '../arte/Objetos';
+import { desenharCaixaDeVenda } from '../arte/Objetos';
 import { definicaoDoItem, nomeDoItem } from '../dados/itens';
-import { BARRACA_DE_SEMENTES, CAIXA_DE_VENDA } from '../dados/mundo';
+import { CAIXA_DE_VENDA } from '../dados/mundo';
 import { comprar, itensVendaveis, sementesAVenda, vendaRapida, vender, venderTudo } from '../estado/Comercio';
 import { textoDoItem } from '../interface/textos';
 import { quantidade } from '../util/texto';
+import type { Interiores } from './Interiores';
 import type { Mundo } from './Mundo';
 
 const moedas = (n: number) => quantidade(n, 'moeda', 'moedas');
 
-// Barraca de sementes (vende as sementes da estação) e caixa de venda (compra o que
-// o Tomás produz). Ficam no pátio da casa até a vila existir.
+// Balcão da loja da vila (vende as sementes da estação) e caixa de venda no pátio da
+// fazenda (compra o que o Tomás produz).
 export class Loja {
   private mundo: Mundo;
 
-  constructor(mundo: Mundo) {
+  constructor(mundo: Mundo, interiores: Interiores) {
     this.mundo = mundo;
     const { mapa, cena, interacao } = mundo;
 
-    const barraca = mapa.areaEmPixels(BARRACA_DE_SEMENTES);
-    desenharBarraca(cena, barraca);
-    mapa.criarBloqueio(BARRACA_DE_SEMENTES);
-    interacao.registrar({ ...barraca, dica: () => 'Barraca de sementes · E: comprar', acao: () => this.abrirBarraca() });
+    interiores.definirUso('loja', 'balcaoDaLoja', {
+      dica: () => 'Balcão da loja · E: comprar sementes',
+      acao: () => this.abrirSementes(),
+    });
 
     const caixa = mapa.areaEmPixels(CAIXA_DE_VENDA);
     desenharCaixaDeVenda(cena, caixa);
@@ -28,10 +29,10 @@ export class Loja {
     interacao.registrar({ ...caixa, dica: () => 'Caixa de venda · E: vender', acao: () => this.abrirCaixa() });
   }
 
-  private abrirBarraca() {
+  private abrirSementes() {
     const { menu, inventario, relogio, avisos } = this.mundo;
     menu.abrir(
-      () => `Barraca de sementes · ${moedas(inventario.moedas)}`,
+      () => `Sementes da estação · ${moedas(inventario.moedas)}`,
       () => [
         ...sementesAVenda(relogio.estacao).map((semente) => {
           const preco = definicaoDoItem(semente).precoCompra ?? 0;

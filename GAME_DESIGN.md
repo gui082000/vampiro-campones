@@ -238,15 +238,22 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
 
 ## 9. Decisões pendentes
 
-- **Antes da Fase 2:**
-  - confirmar a correspondência mapa ↔ história acima;
-  - o mapa é uma imagem única, então o Tomás sempre aparece por cima de árvores e telhados. Passar "atrás"
-    das coisas exige uma camada separada ou migrar para o Tiled;
-  - como o mundo é um mapa aberto, a proposta é ter troca de tela só ao entrar em lugares fechados
-    (casa, porão, igreja).
-- **Duração do dia (recomendo decidir já):** com 1 hora = 5 s, o dia de trabalho (6h às 19h) dura só 65 s
-  reais, pouco para regar, coletar e cuidar dos animais; a noite dura 55 s, curta para caçar com furtividade.
-  Sugestão: 1 hora = 12 s (dia inteiro ≈ 5 min, 30 dias ≈ 2,5 horas de jogo). É só `SEGUNDOS_POR_HORA` no `config.ts`.
+- Mapa em imagem única: as árvores pintadas no mapa sempre ficam por baixo do Tomás. Resolver na arte final
+  (camada da frente separada ou Tiled).
+
+**Fase 2 (2026-10-10):**
+- **1 hora do jogo = 12 s** (dia inteiro ≈ 4,8 min; 30 dias ≈ 2,4 horas de jogo), aprovado pelo diretor.
+- Correspondência mapa ↔ história aplicada: cidade murada = Vale Cinzento; castelo do rei = Solar dos
+  Fundadores (trancado); castelo do vampiro = Ruínas na colina (trancado até o Ato 3); casa da floresta =
+  cabana do Orlando; casa vazia ao norte da cidade = casa do Bento; morro da cidade = cemitério.
+- Prédios desenhados por código sobre os blocos do mapa (`dados/vila.ts`). Transição só para dentro dos
+  prédios (o mundo de fora é contínuo): as salas ficam fora da área do mapa e a porta leva até elas.
+- A barraca de sementes saiu do pátio: as sementes se compram no balcão da loja da vila. A caixa de venda
+  continua no pátio.
+- A casa do Tomás agora tem interior: cama (dormir), mesa (melhorias), fogão, baú e o alçapão do porão,
+  trancado (gancho para a Fase 4/7).
+- Móveis sem função mostram um texto curto ao serem olhados; lápides e o livro da igreja já contam pedaços
+  da história (desaparecidos, o tio, os fundadores).
 
 ## 10. Fases de desenvolvimento
 
@@ -254,7 +261,8 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
   testes automáticos e este documento.
 - [x] **Fase 1 – Fazenda completa:** estações, 8 plantas, energia, coleta, pesca, animais, construção básica,
   artesanato, inventário em grade.
-- [ ] **Fase 2 – Mundo e vila:** fazenda, vila, floresta e cemitério; transição entre áreas; construções da vila.
+- [x] **Fase 2 – Mundo e vila:** Vale Cinzento (igreja, taverna, loja, casas, armazém, solar), cemitério,
+  floresta com cabana, colina trancada, interiores dos prédios.
 - [ ] **Fase 3 – Aldeões:** rotinas, falas, amizade, missões, loja expandida, diário.
 - [ ] **Fase 4 – Vampirismo:** fome, modo noturno, as 4 formas de alimentação, sinais físicos,
   esconderijo/porão, poderes iniciais.

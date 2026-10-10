@@ -2,7 +2,7 @@ import type Phaser from 'phaser';
 import { CAMADA } from '../arte/Camadas';
 import { LARGURA } from '../config';
 
-const DURACAO = 2800; // ms na tela
+const DURACAO = 4000; // ms na tela
 const SUMINDO = 500; // ms finais em que o texto vai apagando
 const MAXIMO = 5;
 
@@ -25,6 +25,7 @@ export class Avisos {
         color: '#ffffff',
         backgroundColor: '#000000aa',
         padding: { x: 6, y: 3 },
+        wordWrap: { width: 430 },
       })
       .setOrigin(1, 0)
       .setScrollFactor(0)
@@ -47,6 +48,10 @@ export class Avisos {
   }
 
   private posicionar() {
-    this.linhas.forEach((l, i) => l.texto.setY(12 + i * 26));
+    let y = 12;
+    for (const l of this.linhas) {
+      l.texto.setY(y);
+      y += l.texto.height + 4;
+    }
   }
 }

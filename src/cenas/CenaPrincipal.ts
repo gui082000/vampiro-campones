@@ -24,6 +24,8 @@ import { Coleta } from '../sistemas/Coleta';
 import { Construcao } from '../sistemas/Construcao';
 import { Fazenda } from '../sistemas/Fazenda';
 import { Interacao } from '../sistemas/Interacao';
+import { Interiores } from '../sistemas/Interiores';
+import { Vila } from '../sistemas/Vila';
 import { Jogador } from '../sistemas/Jogador';
 import { Loja } from '../sistemas/Loja';
 import { Mapa } from '../sistemas/Mapa';
@@ -40,6 +42,7 @@ export class CenaPrincipal extends Phaser.Scene {
   jogador!: Jogador;
   fazenda!: Fazenda;
   coleta!: Coleta;
+  interiores!: Interiores;
 
   private atalhos!: BarraDeAtalhos;
   private pesca!: Pesca;
@@ -88,15 +91,20 @@ export class CenaPrincipal extends Phaser.Scene {
     this.telaDoInventario = new TelaDoInventario(this, controle, this.mundo.inventario);
     this.transicao = new Transicao(this, controle);
 
+    // Prédios por dentro: as salas ficam à direita do mapa, então o mundo físico cresce
+    this.interiores = new Interiores(this.mundo, this.transicao, this.jogador);
+    this.physics.world.setBounds(0, 0, this.interiores.largura, this.interiores.altura);
+    new Vila(this.mundo, this.interiores);
+
     this.fazenda = new Fazenda(this.mundo);
     this.coleta = new Coleta(this.mundo);
     this.pesca = new Pesca(this.mundo);
-    new Loja(this.mundo);
+    new Loja(this.mundo, this.interiores);
     const artesanato = new Artesanato(this.mundo);
     const construcao = new Construcao(this.mundo);
     construcao.definirUso('poco', this.pesca.usoDoPoco());
     this.animais = new Animais(this.mundo, construcao);
-    new Casa(this.mundo, this.transicao, this.telaDoInventario, artesanato);
+    new Casa(this.mundo, this.interiores, this.transicao, this.telaDoInventario, artesanato);
     this.atalhos = new BarraDeAtalhos(this.mundo);
 
     this.escurecimento = new Escurecimento(this);
