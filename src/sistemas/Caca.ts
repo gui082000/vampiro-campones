@@ -13,6 +13,7 @@ import {
   VIAJANTES,
 } from '../dados/vampiro';
 import { beber } from '../estado/Vampiro';
+import { atoDoDia } from '../estado/Historia';
 import { TAMANHO_CELULA } from './Mapa';
 import { registrarMordida, type Mundo } from './Mundo';
 
@@ -100,6 +101,9 @@ export class Caca {
     this.quemViaja = VIAJANTES[0]; // a primeira noite sempre tem um, para o jogador conhecer
   }
 
+  // Ligado pela cena: encerra o jogo com o final Fuga
+  fugir: () => void = () => {};
+
   private soltarCervos() {
     const { mapa } = this.mundo;
     for (const c of this.cervos) {
@@ -150,6 +154,18 @@ export class Caca {
           return 'fechar' as const;
         },
       },
+      ...(atoDoDia(this.mundo.relogio.dia).numero >= 2
+        ? [
+            {
+              texto: 'Acordá-lo e pedir para ir embora com ele, para sempre',
+              detalhe: 'Final: Fuga. A fazenda, a vila e o segredo ficam para trás.',
+              aoEscolher: () => {
+                this.fugir();
+                return 'fechar' as const;
+              },
+            },
+          ]
+        : []),
       { texto: 'Deixar em paz', aoEscolher: () => 'fechar' as const },
     ]);
   }

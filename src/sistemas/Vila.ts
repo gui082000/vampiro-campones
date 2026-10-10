@@ -1,6 +1,7 @@
 import { criarRotulo, desenharCercaDoCemiterio, desenharLapide, desenharPlaca, desenharPredio } from '../arte/Objetos';
 import { CEMITERIO, PLACAS, PREDIOS } from '../dados/vila';
 import { nivel } from '../estado/Suspeita';
+import { atoDoDia } from '../estado/Historia';
 import type { Interiores } from './Interiores';
 import { TAMANHO_CELULA } from './Mapa';
 import { anotarPista, type Mundo } from './Mundo';
@@ -18,10 +19,19 @@ export class Vila {
       const fora = { coluna: predio.porta.coluna, linha: predio.porta.linha + 1 };
       interacao.registrar({
         ...porta,
-        dica: () => (predio.interior ? `${predio.nome} · E: entrar` : `${predio.nome} · trancado`),
+        dica: () => {
+          const aberto = predio.interior && (predio.interior !== 'salaoDaColina' || atoDoDia(mundo.relogio.dia).numero >= 3);
+          return aberto ? `${predio.nome} · E: entrar` : `${predio.nome} · trancado`;
+        },
         acao: () => {
           const trancadoANoite = mundo.relogio.eNoite && nivel(mundo.suspeita) >= 4 && predio.interior !== 'casaDoTomas';
           if (trancadoANoite) return avisos.mostrar('Trancado. Com medo, ninguém abre a porta à noite.');
+          const colinaFechada = predio.interior === 'salaoDaColina' && atoDoDia(mundo.relogio.dia).numero < 3;
+          if (colinaFechada) {
+            avisos.mostrar(predio.trancado);
+            if (predio.trancado) anotarPista(mundo, predio.trancado);
+            return;
+          }
           if (predio.interior) return interiores.entrar(predio.interior, fora);
           avisos.mostrar(predio.trancado);
           if (predio.trancado) anotarPista(mundo, predio.trancado);

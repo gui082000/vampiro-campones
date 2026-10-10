@@ -1,6 +1,6 @@
 import { FOME_ALTA, MULTIPLICADOR_VELOCIDADE_FOME, MULTIPLICADOR_VELOCIDADE_NOITE, VELOCIDADE_CARREGANDO_CORPO } from '../config';
 import { fecharDia, passarTempo, queimarNoAmanhecer } from '../estado/Vampiro';
-import type { FimDeJogo } from '../interface/FimDeJogo';
+import type { IdFinal } from '../dados/historia';
 import type { Interiores } from './Interiores';
 import type { Jogador } from './Jogador';
 import type { Mundo } from './Mundo';
@@ -14,7 +14,7 @@ export class Vampirismo {
   private mundo: Mundo;
   private jogador: Jogador;
 
-  constructor(mundo: Mundo, jogador: Jogador, interiores: Interiores, fim: FimDeJogo) {
+  constructor(mundo: Mundo, jogador: Jogador, interiores: Interiores, terminar: (final: IdFinal) => void) {
     this.mundo = mundo;
     this.jogador = jogador;
     const { relogio, vampiro, energia, avisos } = mundo;
@@ -28,10 +28,7 @@ export class Vampirismo {
     });
     relogio.ouvir('novo-dia', () => {
       if (fecharDia(vampiro)) {
-        fim.mostrar(
-          'A fome venceu',
-          'Dois dias inteiros sem se alimentar. O que restava do camponês Tomás se apagou, e só a fome saiu da casa naquela noite.',
-        );
+        terminar('fome');
       } else if (vampiro.diasNoLimite > 0) {
         avisos.mostrar('Você mal se aguenta de fome. Mais um dia assim e não haverá volta.');
       }

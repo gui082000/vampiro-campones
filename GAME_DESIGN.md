@@ -290,6 +290,23 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
 - Opções (valem para todos os saves): tela cheia, ajuda de teclas na tela e volume (para a Fase 9).
 - O relógio para com a pausa aberta. No desenvolvimento, `?direto` no endereço pula a tela inicial (testes).
 
+**Fase 7 (2026-10-10):**
+- Cenas fixas em `dados/historia.ts` (no máximo 5 caixas cada), contadas por um narrador ou por um aldeão:
+  chegada (dia 1), carta do tio (3), sino da meia-noite (7), sumiço da Dona Lurdes como "tributo" (9), Orlando
+  investiga (12), a vila se divide (18), Helena revela o pacto (20, se tiver 3 corações), o bilhete de sangue (25)
+  e o elixir da Helena (26, se ela confiar).
+- O jogo começa com o Tomás já mordido: a primeira noite no porão é contada na cena de abertura.
+- Os diários do tio (6 páginas) liberam com os dias e são lidos na estante do porão; cada página vira pista.
+- A colina abre no Ato 3 (dia 26). Diante do Senhor da Colina, o jogador escolhe entre os finais disponíveis;
+  os indisponíveis aparecem apagados, dizendo o que falta:
+  - **Redenção**: com o elixir da Helena e sem nenhuma morte humana.
+  - **A terra limpa**: o final pacífico, para quem nunca bebeu de gente.
+  - **Guardião**: sempre possível.
+  - **Senhor da Vila**: com 12 de essência e 2 aldeões mortos.
+- **Fuga**: do Ato 2 em diante, o viajante da estrada aceita levar o Tomás embora.
+- Derrotas: **Linchado** (suspeita 100) e **A fome venceu**. São 7 finais ao todo.
+- Os finais descobertos ficam guardados no navegador entre partidas e aparecem no diário (aba Finais).
+
 ## 9. Decisões pendentes
 
 - Mapa em imagem única: as árvores pintadas no mapa sempre ficam por baixo do Tomás. Resolver na arte final
@@ -323,7 +340,7 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
 - [x] **Fase 5 – Caça e suspeita:** testemunhas, corpos e fogueira, suspeita com 5 faixas e reação da vila,
   rondas e armadilhas do Orlando, linchamento.
 - [x] **Fase 6 – Salvar/carregar,** tela inicial, pausa (Esc), opções, carregar no fim de jogo.
-- [ ] **Fase 7 – História:** Atos 1, 2 e 3 com eventos, diários, cenas curtas e pistas; Senhor da Colina; os 5 finais.
+- [x] **Fase 7 – História:** 3 atos com 9 cenas, 6 páginas do diário do tio, o Senhor da Colina e os finais.
 - [ ] **Fase 8 – Clima,** estações, lua, poderes avançados, eventos aleatórios e festivais.
 - [ ] **Fase 9 – Polimento:** balanceamento, bugs, desempenho, som, textos, testes do jogo inteiro por simulação,
   README, preparação para publicar.

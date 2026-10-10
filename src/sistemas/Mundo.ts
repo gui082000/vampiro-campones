@@ -6,6 +6,7 @@ import type { Missoes } from '../estado/Missoes';
 import type { Relacoes } from '../estado/Relacoes';
 import type { Vampiro } from '../estado/Vampiro';
 import type { Suspeita } from '../estado/Suspeita';
+import type { Historia } from '../estado/Historia';
 import type { IdAldeao } from '../dados/aldeoes';
 import type { Energia } from '../estado/Energia';
 import type { Inventario } from '../estado/Inventario';
@@ -40,6 +41,7 @@ export interface Mundo {
   vampiro: Vampiro;
   cofre: Recipiente; // cofre do porão
   suspeita: Suspeita;
+  historia: Historia;
   // Aldeões acordados que estão vendo o Tomás agora (preenchido pelo sistema de aldeões)
   testemunhas: () => IdAldeao[];
 }

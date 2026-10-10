@@ -10,6 +10,7 @@ import { Relacoes } from '../src/estado/Relacoes';
 import { aplicarSave, gravar, ler, montarSave, type Armazenamento, type Partes } from '../src/estado/Salvamento';
 import { Suspeita } from '../src/estado/Suspeita';
 import { Vampiro } from '../src/estado/Vampiro';
+import { Historia } from '../src/estado/Historia';
 
 function novasPartes(): Partes {
   return {
@@ -25,6 +26,7 @@ function novasPartes(): Partes {
     diario: new Diario(),
     vampiro: new Vampiro(),
     suspeita: new Suspeita(),
+    historia: new Historia(),
     canteiros: {},
     recursos: [],
     onde: { local: 'fora', coluna: 106, linha: 15, volta: { coluna: 0, linha: 0 }, salaDeVolta: 'fora' },

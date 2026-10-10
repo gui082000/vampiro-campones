@@ -111,6 +111,7 @@ export const PREDIOS: Record<string, Predio> = {
     area: { coluna: 64, linha: 1, colunas: 18, linhas: 17 },
     porta: { coluna: 72, linha: 17 },
     estilo: 'ruina',
+    interior: 'salaoDaColina', // só abre no Ato 3 (ver sistemas/Vila)
     trancado: 'Um portão de ferro antigo, preso com correntes. Do outro lado, só escuridão... e um cheiro de terra molhada.',
   },
 };

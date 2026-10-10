@@ -10,6 +10,7 @@ import type { NoDeRecurso } from './Recursos';
 import type { Relacoes } from './Relacoes';
 import type { Suspeita } from './Suspeita';
 import type { Vampiro } from './Vampiro';
+import type { Historia } from './Historia';
 
 export const CHAVE_DO_SAVE = 'sangue-na-terra:save';
 export const VERSAO_DO_SAVE = 1;
@@ -28,6 +29,7 @@ export interface Partes {
   diario: Diario;
   vampiro: Vampiro;
   suspeita: Suspeita;
+  historia: Historia;
   canteiros: Record<string, Canteiro>;
   recursos: NoDeRecurso[];
   onde: { local: string; coluna: number; linha: number; volta: { coluna: number; linha: number }; salaDeVolta: string };

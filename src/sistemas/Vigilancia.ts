@@ -3,7 +3,7 @@ import { profundidadeNoMundo } from '../arte/Camadas';
 import { DOACAO_NA_IGREJA, SUSPEITA } from '../config';
 import { ARMADILHAS, ARMADILHA_ENERGIA, ARMADILHA_PRENDE_POR } from '../dados/vigilancia';
 import { lerRegistro, nivel, passarDiaDaSuspeita, somarSuspeita } from '../estado/Suspeita';
-import type { FimDeJogo } from '../interface/FimDeJogo';
+import type { IdFinal } from '../dados/historia';
 import type { Interiores } from './Interiores';
 import type { Jogador } from './Jogador';
 import type { Mundo } from './Mundo';
@@ -14,15 +14,15 @@ import type { Mundo } from './Mundo';
 export class Vigilancia {
   private mundo: Mundo;
   private jogador: Jogador;
-  private fim: FimDeJogo;
+  private terminar: (final: IdFinal) => void;
   private armadilhas: { coluna: number; linha: number; armada: boolean; desenho: Phaser.GameObjects.Graphics }[] = [];
   private presoAte = 0;
   private tempo = 0;
 
-  constructor(mundo: Mundo, jogador: Jogador, interiores: Interiores, fim: FimDeJogo) {
+  constructor(mundo: Mundo, jogador: Jogador, interiores: Interiores, terminar: (final: IdFinal) => void) {
     this.mundo = mundo;
     this.jogador = jogador;
-    this.fim = fim;
+    this.terminar = terminar;
     const { relogio, suspeita, avisos, cena, mapa, inventario } = mundo;
 
     for (const lugar of ARMADILHAS) {
@@ -74,10 +74,7 @@ export class Vigilancia {
     for (const aviso of lerRegistro(suspeita, vampiro.registro)) avisos.mostrar(aviso);
 
     if (suspeita.linchado) {
-      this.fim.mostrar(
-        'Linchado',
-        'Tochas na porta da fazenda. Orlando à frente, o padre atrás com a cruz. A vila decidiu que o mal de Vale Cinzento tinha nome: Tomás.',
-      );
+      this.terminar('linchado');
       return;
     }
 

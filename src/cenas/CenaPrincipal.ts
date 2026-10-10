@@ -24,6 +24,9 @@ import { FimDeJogo } from '../interface/FimDeJogo';
 import { Suspeita } from '../estado/Suspeita';
 import { Evidencias } from '../sistemas/Evidencias';
 import { Vigilancia } from '../sistemas/Vigilancia';
+import { Historia } from '../sistemas/Historia';
+import { Historia as HistoriaDoJogo } from '../estado/Historia';
+import type { IdFinal } from '../dados/historia';
 import { Escurecimento } from '../interface/Escurecimento';
 import { Hud } from '../interface/Hud';
 import { Menu } from '../interface/Menu';
@@ -74,6 +77,7 @@ export class CenaPrincipal extends Phaser.Scene {
   private fimDeJogo!: FimDeJogo;
   private evidencias!: Evidencias;
   private vigilancia!: Vigilancia;
+  historia!: Historia;
 
   private carregar = false;
   private salvar!: Salvar;
@@ -120,6 +124,7 @@ export class CenaPrincipal extends Phaser.Scene {
       cofre: new Recipiente(TAMANHO_DEPOSITO),
       suspeita: new Suspeita(),
       testemunhas: () => [],
+      historia: new HistoriaDoJogo(),
     };
 
     // Carregar: o estado simples entra antes dos sistemas, que desenham o que leem
@@ -154,9 +159,12 @@ export class CenaPrincipal extends Phaser.Scene {
     this.atalhos = new BarraDeAtalhos(this.mundo);
     this.caca = new Caca(this.mundo);
     this.fimDeJogo = new FimDeJogo(this, controle, existeSave);
-    this.vampirismo = new Vampirismo(this.mundo, this.jogador, this.interiores, this.fimDeJogo);
+    this.historia = new Historia(this.mundo, this.interiores, this.dialogo, this.fimDeJogo);
+    const terminar = (final: IdFinal) => this.historia.terminar(final);
+    this.caca.fugir = () => terminar('fuga');
+    this.vampirismo = new Vampirismo(this.mundo, this.jogador, this.interiores, terminar);
     this.evidencias = new Evidencias(this.mundo, this.interiores, this.jogador);
-    this.vigilancia = new Vigilancia(this.mundo, this.jogador, this.interiores, this.fimDeJogo);
+    this.vigilancia = new Vigilancia(this.mundo, this.jogador, this.interiores, terminar);
 
     this.escurecimento = new Escurecimento(this);
     this.hud = new Hud(this, relogio, this.mundo.inventario, this.mundo.energia, this.mundo.interacao, this.mundo.vampiro, this.mundo.suspeita);
@@ -204,6 +212,7 @@ export class CenaPrincipal extends Phaser.Scene {
     this.vampirismo.atualizar();
     this.evidencias.atualizar();
     this.vigilancia.atualizar(delta);
+    this.historia.atualizar();
     this.fimDeJogo.atualizar();
 
     this.escurecimento.atualizar(relogio.hora, this.vampirismo.visao);

@@ -7,6 +7,8 @@ import type { Diario } from '../estado/Diario';
 import { textoDoPedido, type Missoes } from '../estado/Missoes';
 import type { Relacoes } from '../estado/Relacoes';
 import type { Controle } from '../util/Controle';
+import { FINAIS } from '../dados/historia';
+import { finaisDescobertos } from '../sistemas/Historia';
 
 const ABAS = ['Missões', 'Aldeões', 'Pistas', 'Finais'] as const;
 
@@ -98,7 +100,9 @@ export class TelaDoDiario {
       case 'Pistas':
         return this.diario.pistas.length ? this.diario.pistas.map((p) => `• ${p}`).join('\n') : 'Nada descoberto ainda. Leia lápides, livros... e ouça a vila.';
       default:
-        return this.diario.finais.length ? this.diario.finais.join('\n') : 'Nenhum final descoberto. (Fase 7)';
+        const todos = finaisDescobertos().map((id) => `✓ ${FINAIS[id].titulo}`);
+        const faltam = Object.keys(FINAIS).length - todos.length;
+        return `${todos.length ? todos.join('\n') : 'Nenhum final descoberto ainda.'}\n\n${faltam} ${faltam === 1 ? 'final' : 'finais'} por descobrir.`;
     }
   }
 

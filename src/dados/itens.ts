@@ -87,6 +87,7 @@ export const ITENS = {
   // Itens do vampiro (as receitas só aparecem na Fase 4)
   unguentoSolar: { nome: 'Unguento contra o sol', tipo: 'vampiro', descricao: 'Alivia a queimação da pele sob o sol.', cor: 0xe8d8a0, sigla: 'Un' },
   ervasDeDisfarce: { nome: 'Ervas de disfarce', tipo: 'vampiro', descricao: 'Disfarçam a palidez e o cheiro de sangue.', cor: 0x70905a, sigla: 'Ed' },
+  elixirDaAurora: { nome: 'Elixir da aurora', tipo: 'vampiro', descricao: 'O remédio da Helena. Só tem sentido diante do Senhor da Colina.', cor: 0xf0d8a0, sigla: 'El' },
   tonicoRubro: { nome: 'Tônico rubro', tipo: 'vampiro', descricao: 'Engana a fome por algumas horas.', cor: 0x902030, sigla: 'TR' },
 } satisfies Record<string, DefinicaoDeItem>;
 

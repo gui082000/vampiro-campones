@@ -20,7 +20,8 @@ export type TipoDeMovel =
   | 'barril'
   | 'caixao'
   | 'cofre'
-  | 'altarDeSangue';
+  | 'altarDeSangue'
+  | 'trono';
 
 export interface Movel {
   tipo: TipoDeMovel;
@@ -148,6 +149,17 @@ export const INTERIORES = {
       { tipo: 'cofre', nome: 'Cofre', coluna: 6, linha: 0, colunas: 1, linhas: 1 },
       { tipo: 'altarDeSangue', nome: 'Altar', coluna: 3, linha: 0, colunas: 1, linhas: 1 },
       { tipo: 'estante', nome: 'Diários do tio', coluna: 6, linha: 3, colunas: 1, linhas: 1, texto: 'Cadernos do tio Joaquim, molhados e colados. Dá para ler só uma frase: "Ela nunca para de ter fome."', pista: true },
+    ],
+  },
+  salaoDaColina: {
+    nome: 'Salão das ruínas',
+    colunas: 12,
+    linhas: 10,
+    estilo: 'pedra',
+    moveis: [
+      { tipo: 'trono', nome: 'O Senhor da Colina', coluna: 4, linha: 0, colunas: 2, linhas: 2 },
+      { tipo: 'altarDeSangue', nome: 'Altar antigo', coluna: 1, linha: 3, colunas: 1, linhas: 1, texto: 'Nomes riscados na pedra. Centenas. O último é "Joaquim".', pista: true },
+      { tipo: 'estante', nome: 'Ossos', coluna: 8, linha: 3, colunas: 1, linhas: 1, texto: 'Ossos antigos, empilhados com cuidado. Todos adultos.' },
     ],
   },
 } satisfies Record<string, DefinicaoDeInterior>;
