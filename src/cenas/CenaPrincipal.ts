@@ -10,7 +10,13 @@ import { Criacao } from '../estado/Criacao';
 import { Energia } from '../estado/Energia';
 import { Inventario } from '../estado/Inventario';
 import { Recipiente } from '../estado/Recipiente';
+import { Diario } from '../estado/Diario';
+import { Missoes } from '../estado/Missoes';
+import { Relacoes } from '../estado/Relacoes';
 import { Avisos } from '../interface/Avisos';
+import { Dialogo } from '../interface/Dialogo';
+import { TelaDoDiario } from '../interface/TelaDoDiario';
+import { Aldeoes } from '../sistemas/Aldeoes';
 import { Escurecimento } from '../interface/Escurecimento';
 import { Hud } from '../interface/Hud';
 import { Menu } from '../interface/Menu';
@@ -51,6 +57,9 @@ export class CenaPrincipal extends Phaser.Scene {
   private transicao!: Transicao;
   private escurecimento!: Escurecimento;
   private hud!: Hud;
+  private dialogo!: Dialogo;
+  private telaDoDiario!: TelaDoDiario;
+  aldeoes!: Aldeoes;
 
   constructor() {
     super('CenaPrincipal');
@@ -81,6 +90,9 @@ export class CenaPrincipal extends Phaser.Scene {
       construcoes: new Construcoes(),
       criacao: new Criacao(),
       deposito: new Recipiente(TAMANHO_DEPOSITO),
+      relacoes: new Relacoes(),
+      missoes: new Missoes(),
+      diario: new Diario(),
     };
 
     const inicio = mapa.centroDaCelula(INICIO_JOGADOR);
@@ -90,16 +102,19 @@ export class CenaPrincipal extends Phaser.Scene {
 
     this.telaDoInventario = new TelaDoInventario(this, controle, this.mundo.inventario);
     this.transicao = new Transicao(this, controle);
+    this.dialogo = new Dialogo(this, controle);
+    this.telaDoDiario = new TelaDoDiario(this, controle, this.mundo.diario, this.mundo.missoes, this.mundo.relacoes);
 
     // Prédios por dentro: as salas ficam à direita do mapa, então o mundo físico cresce
     this.interiores = new Interiores(this.mundo, this.transicao, this.jogador);
     this.physics.world.setBounds(0, 0, this.interiores.largura, this.interiores.altura);
     new Vila(this.mundo, this.interiores);
+    this.aldeoes = new Aldeoes(this.mundo, this.interiores, this.dialogo);
 
     this.fazenda = new Fazenda(this.mundo);
     this.coleta = new Coleta(this.mundo);
     this.pesca = new Pesca(this.mundo);
-    new Loja(this.mundo, this.interiores);
+    new Loja(this.mundo, this.interiores, this.aldeoes);
     const artesanato = new Artesanato(this.mundo);
     const construcao = new Construcao(this.mundo);
     construcao.definirUso('poco', this.pesca.usoDoPoco());
@@ -122,20 +137,25 @@ export class CenaPrincipal extends Phaser.Scene {
   update(_tempo: number, delta: number) {
     const { relogio, menu, controle, interacao, avisos } = this.mundo;
 
-    // O relógio para enquanto há um menu ou o inventário aberto
-    if (!menu.estaAberto && !this.telaDoInventario.estaAberta && !this.transicao.emAndamento) {
+    // O relógio para enquanto há uma janela aberta (menu, inventário, conversa, diário)
+    const janelaAberta =
+      menu.estaAberto || this.telaDoInventario.estaAberta || this.dialogo.estaAberto || this.telaDoDiario.estaAberta;
+    if (!janelaAberta && !this.transicao.emAndamento) {
       relogio.avancar(delta);
     }
 
     // Janelas primeiro: se uma estiver aberta, ela fica com as teclas
     menu.atualizar();
+    this.dialogo.atualizar();
     this.telaDoInventario.atualizar();
+    this.telaDoDiario.atualizar();
 
     this.jogador.atualizar(controle.livre);
     this.atalhos.atualizar();
     this.pesca.atualizar(delta, this.jogador);
     interacao.atualizar(this.jogador.celulaDaFrente);
     this.animais.atualizar(delta);
+    this.aldeoes.atualizar(delta);
 
     this.escurecimento.atualizar(relogio.hora);
     avisos.atualizar(delta);

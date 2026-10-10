@@ -6,7 +6,7 @@ import type { TelaDoInventario } from '../interface/TelaDoInventario';
 import type { Transicao } from '../interface/Transicao';
 import type { Artesanato } from './Artesanato';
 import type { Interiores } from './Interiores';
-import type { Mundo } from './Mundo';
+import { anotarPista, type Mundo } from './Mundo';
 
 const MELHORIAS: IdConstrucao[] = ['cama', 'cozinha', 'deposito'];
 
@@ -39,7 +39,11 @@ export class Casa {
     });
     interiores.definirUso('casaDoTomas', 'alcapao', {
       dica: () => 'Alçapão do porão · trancado',
-      acao: () => avisos.mostrar('Trancado com correntes, pelo lado de baixo. Lá dentro, algo arranha a madeira.'),
+      acao: () => {
+        const texto = 'O alçapão do porão está trancado com correntes, pelo lado de baixo. Lá dentro, algo arranha a madeira.';
+        avisos.mostrar(texto);
+        anotarPista(mundo, texto);
+      },
     });
   }
 

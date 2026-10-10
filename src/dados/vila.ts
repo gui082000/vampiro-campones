@@ -71,10 +71,17 @@ export const PREDIOS: Record<string, Predio> = {
     estilo: 'casa',
     interior: 'casaDaViuva',
   },
-  casaDoAgricultor: {
-    nome: 'Casa do agricultor',
+  casaDoBento: {
+    nome: 'Casa do Bento',
     area: { coluna: 172, linha: 95, colunas: 9, linhas: 7 },
     porta: { coluna: 176, linha: 101 },
+    estilo: 'casa',
+    interior: 'casaDoBento',
+  },
+  casaDoAgricultor: {
+    nome: 'Sítio do Seu Amaro',
+    area: { coluna: 151, linha: 94, colunas: 16, linhas: 15 },
+    porta: { coluna: 158, linha: 108 },
     estilo: 'casa',
     interior: 'casaDoAgricultor',
   },
@@ -91,13 +98,6 @@ export const PREDIOS: Record<string, Predio> = {
     porta: { coluna: 175, linha: 80 },
     estilo: 'solar',
     trancado: 'Os portões do solar estão fechados. Um brasão antigo: uma colina e uma lua.',
-  },
-  casaDoBento: {
-    nome: 'Casa do Bento',
-    area: { coluna: 153, linha: 53, colunas: 5, linhas: 7 },
-    porta: { coluna: 155, linha: 59 },
-    estilo: 'casa',
-    interior: 'casaDoBento',
   },
   cabanaDoOrlando: {
     nome: 'Cabana do caçador',

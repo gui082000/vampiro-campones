@@ -110,7 +110,7 @@ async function avaliar(expressao) {
 
 const TECLAS = {
   a: ['KeyA', 65, 'a'], s: ['KeyS', 83, 's'], d: ['KeyD', 68, 'd'], w: ['KeyW', 87, 'w'],
-  e: ['KeyE', 69, 'e'], f: ['KeyF', 70, 'f'], i: ['KeyI', 73, 'i'], q: ['KeyQ', 81, 'q'],
+  e: ['KeyE', 69, 'e'], f: ['KeyF', 70, 'f'], i: ['KeyI', 73, 'i'], q: ['KeyQ', 81, 'q'], j: ['KeyJ', 74, 'j'],
   esc: ['Escape', 27, 'Escape'], enter: ['Enter', 13, 'Enter'], tab: ['Tab', 9, 'Tab'],
   cima: ['ArrowUp', 38, 'ArrowUp'], baixo: ['ArrowDown', 40, 'ArrowDown'],
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8].map((n) => [n, [`Digit${n}`, 48 + n, String(n)]])),

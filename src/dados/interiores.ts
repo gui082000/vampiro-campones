@@ -27,6 +27,7 @@ export interface Movel {
   colunas: number;
   linhas: number;
   texto?: string;
+  pista?: boolean; // ao olhar, o texto vai para as pistas do diário
 }
 
 export interface DefinicaoDeInterior {
@@ -78,7 +79,7 @@ export const INTERIORES = {
       { tipo: 'banco', nome: 'Banco', coluna: 6, linha: 3, colunas: 3, linhas: 1, texto: 'Um banco de madeira gasto.' },
       { tipo: 'banco', nome: 'Banco', coluna: 1, linha: 5, colunas: 3, linhas: 1, texto: 'Um banco de madeira gasto.' },
       { tipo: 'banco', nome: 'Banco', coluna: 6, linha: 5, colunas: 3, linhas: 1, texto: 'Um banco de madeira gasto.' },
-      { tipo: 'estante', nome: 'Livro de registros', coluna: 9, linha: 0, colunas: 1, linhas: 1, texto: 'Batismos, casamentos... e uma lista longa de "desaparecidos na floresta".' },
+      { tipo: 'estante', nome: 'Livro de registros', coluna: 9, linha: 0, colunas: 1, linhas: 1, texto: 'Batismos, casamentos... e uma lista longa de "desaparecidos na floresta".', pista: true },
     ],
   },
   taverna: {
@@ -90,7 +91,7 @@ export const INTERIORES = {
       { tipo: 'balcao', nome: 'Balcão', coluna: 0, linha: 1, colunas: 4, linhas: 1, texto: 'Ninguém atrás do balcão. A Rosália chega na Fase 3.' },
       { tipo: 'barril', nome: 'Barril', coluna: 0, linha: 0, colunas: 1, linhas: 1, texto: 'Cheiro forte de cerveja de cevada.' },
       { tipo: 'mesa', nome: 'Mesa', coluna: 5, linha: 2, colunas: 2, linhas: 1, texto: 'Canecas vazias e um baralho velho.' },
-      { tipo: 'mesa', nome: 'Mesa', coluna: 8, linha: 4, colunas: 2, linhas: 1, texto: 'Alguém riscou na madeira: "não saia depois do sino".' },
+      { tipo: 'mesa', nome: 'Mesa', coluna: 8, linha: 4, colunas: 2, linhas: 1, texto: 'Alguém riscou na madeira: "não saia depois do sino".', pista: true },
       { tipo: 'lareira', nome: 'Lareira', coluna: 7, linha: 0, colunas: 2, linhas: 1, texto: 'O fogo nunca apaga aqui.' },
     ],
   },
@@ -130,7 +131,7 @@ export const INTERIORES = {
     estilo: 'madeira',
     moveis: [
       { tipo: 'estante', nome: 'Armadilhas', coluna: 0, linha: 0, colunas: 2, linhas: 1, texto: 'Armadilhas de ferro, bem cuidadas. Grandes demais para lobo.' },
-      { tipo: 'mesa', nome: 'Mesa', coluna: 3, linha: 2, colunas: 2, linhas: 1, texto: 'Um mapa da floresta com marcas vermelhas.' },
+      { tipo: 'mesa', nome: 'Mesa', coluna: 3, linha: 2, colunas: 2, linhas: 1, texto: 'Um mapa da floresta com marcas vermelhas, todas perto da colina.', pista: true },
       { tipo: 'cama', nome: 'Catre', coluna: 6, linha: 0, colunas: 1, linhas: 2, texto: 'Duro e frio.' },
     ],
   },

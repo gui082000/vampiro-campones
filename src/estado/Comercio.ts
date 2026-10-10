@@ -16,8 +16,8 @@ export function sementesAVenda(estacao: Estacao): IdItem[] {
 }
 
 // Compra 1 unidade. Devolve se a compra aconteceu.
-export function comprar(item: IdItem, inventario: Inventario): Resultado {
-  const preco = definicaoDoItem(item).precoCompra;
+// `preco`: o da loja; sem ele, usa o preço de compra do item (sementes)
+export function comprar(item: IdItem, inventario: Inventario, preco = definicaoDoItem(item).precoCompra): Resultado {
   if (preco === undefined) return nada();
   if (inventario.moedas < preco) return nada(`Custa ${moedas(preco)}`);
   if (inventario.espacoPara(item) < 1) return nada('Inventário cheio');

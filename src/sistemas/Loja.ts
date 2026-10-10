@@ -1,5 +1,7 @@
 import { desenharCaixaDeVenda } from '../arte/Objetos';
-import { definicaoDoItem, nomeDoItem } from '../dados/itens';
+import { definicaoDoItem, nomeDoItem, type IdItem } from '../dados/itens';
+import { LOJA_ABRE, LOJA_FECHA, OUTROS_ITENS_DA_LOJA } from '../dados/loja';
+import type { Aldeoes } from './Aldeoes';
 import { CAIXA_DE_VENDA } from '../dados/mundo';
 import { comprar, itensVendaveis, sementesAVenda, vendaRapida, vender, venderTudo } from '../estado/Comercio';
 import { textoDoItem } from '../interface/textos';
@@ -14,13 +16,14 @@ const moedas = (n: number) => quantidade(n, 'moeda', 'moedas');
 export class Loja {
   private mundo: Mundo;
 
-  constructor(mundo: Mundo, interiores: Interiores) {
+  constructor(mundo: Mundo, interiores: Interiores, aldeoes: Aldeoes) {
     this.mundo = mundo;
-    const { mapa, cena, interacao } = mundo;
+    const { mapa, cena, interacao, relogio, avisos } = mundo;
 
+    const aberta = () => relogio.hora >= LOJA_ABRE && relogio.hora < LOJA_FECHA && aldeoes.salaDe('cida') === 'loja';
     interiores.definirUso('loja', 'balcaoDaLoja', {
-      dica: () => 'Balcão da loja · E: comprar sementes',
-      acao: () => this.abrirSementes(),
+      dica: () => (aberta() ? 'Balcão da loja · E: comprar' : `Balcão · fechado (abre às ${LOJA_ABRE}h)`),
+      acao: () => (aberta() ? this.abrirLoja() : avisos.mostrar(`A loja abre das ${LOJA_ABRE}h às ${LOJA_FECHA}h.`)),
     });
 
     const caixa = mapa.areaEmPixels(CAIXA_DE_VENDA);
@@ -29,20 +32,19 @@ export class Loja {
     interacao.registrar({ ...caixa, dica: () => 'Caixa de venda · E: vender', acao: () => this.abrirCaixa() });
   }
 
-  private abrirSementes() {
+  private abrirLoja() {
     const { menu, inventario, relogio, avisos } = this.mundo;
+    const opcao = (item: IdItem, preco: number) => ({
+      texto: `${nomeDoItem(item)} — ${moedas(preco)}`,
+      detalhe: textoDoItem(item),
+      ativa: inventario.moedas >= preco,
+      aoEscolher: () => avisos.mostrar(comprar(item, inventario, preco).aviso),
+    });
     menu.abrir(
-      () => `Sementes da estação · ${moedas(inventario.moedas)}`,
+      () => `Loja da Dona Cida · ${moedas(inventario.moedas)}`,
       () => [
-        ...sementesAVenda(relogio.estacao).map((semente) => {
-          const preco = definicaoDoItem(semente).precoCompra ?? 0;
-          return {
-            texto: `${nomeDoItem(semente)} — ${moedas(preco)}`,
-            detalhe: textoDoItem(semente),
-            ativa: inventario.moedas >= preco,
-            aoEscolher: () => avisos.mostrar(comprar(semente, inventario).aviso),
-          };
-        }),
+        ...sementesAVenda(relogio.estacao).map((semente) => opcao(semente, definicaoDoItem(semente).precoCompra ?? 0)),
+        ...OUTROS_ITENS_DA_LOJA.map(({ item, preco }) => opcao(item, preco)),
         { texto: 'Fechar', aoEscolher: () => 'fechar' as const },
       ],
     );

@@ -1,6 +1,9 @@
 import type Phaser from 'phaser';
 import type { Construcoes } from '../estado/Construcoes';
 import type { Criacao } from '../estado/Criacao';
+import type { Diario } from '../estado/Diario';
+import type { Missoes } from '../estado/Missoes';
+import type { Relacoes } from '../estado/Relacoes';
 import type { Energia } from '../estado/Energia';
 import type { Inventario } from '../estado/Inventario';
 import type { Recipiente } from '../estado/Recipiente';
@@ -28,4 +31,12 @@ export interface Mundo {
   construcoes: Construcoes;
   criacao: Criacao;
   deposito: Recipiente;
+  relacoes: Relacoes;
+  missoes: Missoes;
+  diario: Diario;
+}
+
+// Anota uma pista no diário e avisa, só na primeira vez
+export function anotarPista(mundo: Mundo, pista: string) {
+  if (mundo.diario.anotar(pista)) mundo.avisos.mostrar('Pista anotada no diário (J)');
 }

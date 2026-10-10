@@ -6,7 +6,7 @@ import type { Transicao } from '../interface/Transicao';
 import type { AreaDeCelulas } from '../util/areas';
 import type { Jogador } from './Jogador';
 import { TAMANHO_CELULA } from './Mapa';
-import type { Mundo } from './Mundo';
+import { anotarPista, type Mundo } from './Mundo';
 
 export interface UsoDeMovel {
   dica: () => string;
@@ -81,6 +81,12 @@ export class Interiores {
     });
   }
 
+  // Célula do mundo para uma posição dentro da sala (sem contar as paredes)
+  celulaNaSala(id: IdInterior, coluna: number, linha: number): { coluna: number; linha: number } {
+    const canto = this.cantos.get(id)!;
+    return { coluna: canto.coluna + 1 + coluna, linha: canto.linha + 1 + linha };
+  }
+
   private areaDa(id: IdInterior): AreaDeCelulas {
     const { coluna, linha } = this.cantos.get(id)!;
     const sala: DefinicaoDeInterior = INTERIORES[id];
@@ -130,7 +136,10 @@ export class Interiores {
         acao: () => {
           const uso = this.usos.get(chave);
           if (uso) uso.acao();
-          else avisos.mostrar(movel.texto);
+          else if (movel.pista && movel.texto) {
+            avisos.mostrar(movel.texto);
+            anotarPista(this.mundo, movel.texto);
+          } else avisos.mostrar(movel.texto);
         },
       });
     }

@@ -2,7 +2,7 @@ import { criarRotulo, desenharCercaDoCemiterio, desenharLapide, desenharPlaca, d
 import { CEMITERIO, PLACAS, PREDIOS } from '../dados/vila';
 import type { Interiores } from './Interiores';
 import { TAMANHO_CELULA } from './Mapa';
-import type { Mundo } from './Mundo';
+import { anotarPista, type Mundo } from './Mundo';
 
 // O mundo construído por cima do mapa: os prédios (com porta para entrar ou trancados),
 // o cemitério com as lápides que contam a história e as placas pelos caminhos.
@@ -18,7 +18,11 @@ export class Vila {
       interacao.registrar({
         ...porta,
         dica: () => (predio.interior ? `${predio.nome} · E: entrar` : `${predio.nome} · trancado`),
-        acao: () => (predio.interior ? interiores.entrar(predio.interior, fora) : avisos.mostrar(predio.trancado)),
+        acao: () => {
+          if (predio.interior) return interiores.entrar(predio.interior, fora);
+          avisos.mostrar(predio.trancado);
+          if (predio.trancado) anotarPista(mundo, predio.trancado);
+        },
       });
     }
 
@@ -39,7 +43,10 @@ export class Vila {
           largura: TAMANHO_CELULA,
           altura: TAMANHO_CELULA,
           dica: () => 'Lápide · E: ler',
-          acao: () => avisos.mostrar(texto),
+          acao: () => {
+            avisos.mostrar(texto);
+            anotarPista(mundo, texto);
+          },
         });
       }
     }

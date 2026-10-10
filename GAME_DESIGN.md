@@ -44,7 +44,7 @@ Jogo 2D top-down de vida no campo + sobrevivência (referências: Stardew Valley
   O `passou` chega em pedaços que são todos de dia ou todos de noite (até quando o Tomás dorme).
 - No modo de desenvolvimento, o jogo fica acessível no console do navegador como `jogo`.
 
-**Controles:** WASD ou setas andam · E usa o que está à frente do Tomás (com o item da mão) · 1 a 8 ou a
+**Controles:** J abre o diário · WASD ou setas andam · E usa o que está à frente do Tomás (com o item da mão) · 1 a 8 ou a
 rodinha do mouse escolhem o item · F come o item da mão · I abre o inventário · Esc ou Q fecham menus ·
 Tab troca de lado no depósito.
 
@@ -195,7 +195,7 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
   depósito (baú de 24 espaços) e melhorias (cama de madeira, cozinha, depósito).
 - Animais: galinhas e vacas, compradas no próprio abrigo; comem do comedouro (trigo ou feno) ou pastam com a
   cerca; dão ovo ou leite por dia.
-- Ainda não existem aldeões nem nada do vampiro (Fases 3 e 4).
+- Aldeões (Fase 3): ver decisões abaixo. Ainda não há nada do vampiro (Fase 4).
 
 ## 8. Decisões tomadas
 
@@ -236,6 +236,20 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
 - Árvores, pedras, construções e animais são desenhados por código (provisório), e o Tomás passa atrás deles.
   As árvores pintadas na imagem do mapa continuam sempre por baixo dele.
 
+**Fase 3 (2026-10-10):**
+- 5 aldeões principais (Bento, Helena, Padre Anselmo, Dona Rosália, Orlando) e 4 de fundo (Dona Cida da
+  loja, Tonho ferreiro, Dona Lurdes viúva, Seu Amaro agricultor), em .
+- Rotina por hora: o aldeão **aparece** no próximo lugar da rotina (não atravessa o mapa andando) e passeia
+  um pouco onde está. Andar de um lugar a outro pelas ruas fica para a fase de polimento.
+- Amizade de 0 a 10 corações (10 pontos cada): conversar dá +3 por dia; presente +10 (gosta), +4 (normal)
+  ou -6 (odeia), um por dia. As falas mudam a cada 3 corações. Na Fase 5 as ações noturnas vão tirar amizade.
+- Missões: 3 por aldeão principal (), liberadas com 0, 3 e 6 corações; levar itens e
+  receber moedas e amizade. As últimas dão pistas da história.
+- Loja da Dona Cida: sementes da estação + feno, adubo, madeira, pedra, pão e vara de pesca; abre das 8h às 18h.
+- Diário (J): missões, amizade, pistas (lápides, livros, conversas) e finais (Fase 7).
+- A casa do Bento ficou na cidade; a casa vazia ao norte (porta virada para o rio) não é usada.
+- Crianças não aparecem como vítimas: os desaparecidos citados são todos adultos.
+
 ## 9. Decisões pendentes
 
 - Mapa em imagem única: as árvores pintadas no mapa sempre ficam por baixo do Tomás. Resolver na arte final
@@ -263,7 +277,7 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
   artesanato, inventário em grade.
 - [x] **Fase 2 – Mundo e vila:** Vale Cinzento (igreja, taverna, loja, casas, armazém, solar), cemitério,
   floresta com cabana, colina trancada, interiores dos prédios.
-- [ ] **Fase 3 – Aldeões:** rotinas, falas, amizade, missões, loja expandida, diário.
+- [x] **Fase 3 – Aldeões:** 9 aldeões com rotina, falas por amizade, presentes, 15 missões, loja da Dona Cida, diário (J).
 - [ ] **Fase 4 – Vampirismo:** fome, modo noturno, as 4 formas de alimentação, sinais físicos,
   esconderijo/porão, poderes iniciais.
 - [ ] **Fase 5 – Caça e suspeita:** furtividade, testemunhas, evidências, suspeita com faixas e reação da vila,
