@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { HORA_AMANHECER, HORA_ANOITECER, HORA_INICIAL, SEGUNDOS_POR_HORA } from '../src/config';
+import {
+  HORA_AMANHECER,
+  HORA_ANOITECER,
+  HORA_INICIAL,
+  SEGUNDOS_POR_HORA,
+} from '../src/config';
 import { Relogio } from '../src/sistemas/Relogio';
 
 const UMA_HORA_MS = SEGUNDOS_POR_HORA * 1000; // 1 hora do jogo em milissegundos reais
@@ -10,7 +15,7 @@ function avancarHoras(relogio: Relogio, horas: number) {
   for (let i = 0; i < Math.round(horas * 60); i++) relogio.avancar(UMA_HORA_MS / 60);
 }
 
-// Guarda a ordem em que os eventos do relógio acontecem
+// Guarda a ordem em que os marcos do relógio acontecem
 function gravarEventos(relogio: Relogio): string[] {
   const eventos: string[] = [];
   relogio.ouvir('novo-dia', (dia) => eventos.push(`novo-dia ${dia}`));
@@ -67,6 +72,43 @@ describe('Relógio', () => {
     expect(eventos).toEqual(['anoiteceu', 'novo-dia 2', 'amanheceu']);
     expect(relogio.dia).toBe(2);
     expect(relogio.hora).toBeCloseTo(HORA_INICIAL);
+  });
+
+  it('avisa o tempo que passou em pedaços que são todos de dia ou todos de noite', () => {
+    const relogio = new Relogio();
+    const pedacos: { horas: number; eNoite: boolean }[] = [];
+    relogio.ouvir('passou', (horas, eNoite) => pedacos.push({ horas, eNoite }));
+
+    relogio.avancar(24 * UMA_HORA_MS);
+
+    const soma = (eNoite: boolean) =>
+      pedacos.filter((p) => p.eNoite === eNoite).reduce((total, p) => total + p.horas, 0);
+    expect(soma(false) + soma(true)).toBeCloseTo(24);
+    expect(soma(true)).toBeCloseTo(24 - (HORA_ANOITECER - HORA_AMANHECER)); // horas de noite num dia
+  });
+
+  it('dormir pula até a hora de acordar do dia seguinte', () => {
+    const relogio = new Relogio();
+    const eventos = gravarEventos(relogio);
+    relogio.hora = 22;
+
+    relogio.avancarAte(6);
+
+    expect(relogio.dia).toBe(2);
+    expect(relogio.hora).toBe(6);
+    expect(eventos).toEqual(['novo-dia 2', 'amanheceu']);
+  });
+
+  it('dormir numa hora "quebrada" também chega certinho na manhã seguinte', () => {
+    const relogio = new Relogio();
+    const eventos = gravarEventos(relogio);
+    relogio.hora = 8.758333333333; // 8h45 e alguns segundos
+
+    relogio.avancarAte(6);
+
+    expect(relogio.dia).toBe(2);
+    expect(relogio.hora).toBe(6);
+    expect(eventos).toEqual(['anoiteceu', 'novo-dia 2', 'amanheceu']);
   });
 
   it('mostra o horário no formato hh:mm', () => {

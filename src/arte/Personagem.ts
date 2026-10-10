@@ -20,6 +20,12 @@ export const ESCALA_JOGADOR = 2;
 // Hitbox só nos pés, em pixels do quadro (antes da escala)
 export const PES_JOGADOR = { largura: 14, altura: 10, x: 17, y: 18 };
 
+// Onde ficam os pés em relação ao centro do sprite, já na escala do jogo (pixels)
+export const CENTRO_DOS_PES = {
+  x: (PES_JOGADOR.x + PES_JOGADOR.largura / 2 - LARGURA_QUADRO / 2) * ESCALA_JOGADOR,
+  y: (PES_JOGADOR.y + PES_JOGADOR.altura / 2 - ALTURA_QUADRO / 2) * ESCALA_JOGADOR,
+};
+
 export function carregarPersonagem(scene: Phaser.Scene) {
   scene.load.spritesheet(CHAVE_JOGADOR, spriteUrl, {
     frameWidth: LARGURA_QUADRO,

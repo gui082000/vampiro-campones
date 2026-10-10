@@ -1,75 +1,167 @@
 import { describe, expect, it } from 'vitest';
-import { COLHEITA_POR_PLANTA, HORAS_PARA_CRESCER, SEMENTES_INICIAIS } from '../src/config';
-import type { Ferramenta } from '../src/dados/ferramentas';
+import { CAPACIDADE_REGADOR, CUSTO_DE_ENERGIA, MULTIPLICADOR_ADUBO } from '../src/config';
+import type { Estacao } from '../src/dados/estacoes';
+import type { IdItem } from '../src/dados/itens';
+import { PLANTAS } from '../src/dados/plantas';
+import { Energia } from '../src/estado/Energia';
 import { Inventario } from '../src/estado/Inventario';
-import { crescer, estaPronto, novoCanteiro, usarNoCanteiro } from '../src/estado/Plantacao';
+import {
+  Lavoura,
+  crescer,
+  estaPronto,
+  mudarDeEstacao,
+  novoCanteiro,
+  secar,
+  usarNoCanteiro,
+  type Canteiro,
+  type ContextoDaFazenda,
+} from '../src/estado/Plantacao';
 
-// Usa a ferramenta indicada no canteiro, como se o jogador apertasse E com ela na mão
-function usar(ferramenta: Ferramenta, canteiro = novoCanteiro(0, 0), inventario = new Inventario()) {
-  inventario.ferramenta = ferramenta;
-  const mudou = usarNoCanteiro(canteiro, inventario);
-  return { canteiro, inventario, mudou };
+function contexto(estacao: Estacao = 'primavera'): ContextoDaFazenda {
+  const inventario = new Inventario([
+    { item: 'enxada', qtd: 1 },
+    { item: 'regador', qtd: 1 },
+    { item: 'sementeTrigo', qtd: 5 },
+    { item: 'sementeLirio', qtd: 2 },
+    { item: 'sementeGirassol', qtd: 2 },
+    { item: 'adubo', qtd: 2 },
+  ]);
+  return { inventario, energia: new Energia(), estacao };
 }
 
-// Canteiro já plantado, para os testes de crescimento
-function canteiroPlantado() {
-  const { canteiro, inventario } = usar('enxada');
-  usar('sementes', canteiro, inventario);
-  return { canteiro, inventario };
+// Aperta E no canteiro com esse item na mão
+function usar(c: Canteiro, ctx: ContextoDaFazenda, item: IdItem) {
+  ctx.inventario.selecionado = ctx.inventario.slots.findIndex((s) => s?.item === item);
+  return usarNoCanteiro(c, ctx);
+}
+
+function plantado(semente: IdItem = 'sementeTrigo', estacao: Estacao = 'primavera') {
+  const ctx = contexto(estacao);
+  const c = novoCanteiro(0, 0);
+  usar(c, ctx, 'enxada');
+  usar(c, ctx, semente);
+  return { c, ctx };
 }
 
 describe('Plantação', () => {
-  it('a enxada ara a terra', () => {
-    const { canteiro, mudou } = usar('enxada');
-    expect(mudou).toBe(true);
-    expect(canteiro.solo).toBe('arado');
+  it('a enxada ara a terra e gasta energia', () => {
+    const ctx = contexto();
+    const c = novoCanteiro(0, 0);
+    expect(usar(c, ctx, 'enxada').mudou).toBe(true);
+    expect(c.arado).toBe(true);
+    expect(ctx.energia.atual).toBe(ctx.energia.maxima - CUSTO_DE_ENERGIA.arar);
   });
 
-  it('plantar gasta 1 semente', () => {
-    const { canteiro, inventario } = canteiroPlantado();
-    expect(canteiro.solo).toBe('plantado');
-    expect(inventario.sementes).toBe(SEMENTES_INICIAIS - 1);
+  it('plantar gasta 1 semente da mão; não dá para plantar sem arar', () => {
+    const ctx = contexto();
+    const c = novoCanteiro(0, 0);
+    expect(usar(c, ctx, 'sementeTrigo').mudou).toBe(false);
+
+    usar(c, ctx, 'enxada');
+    usar(c, ctx, 'sementeTrigo');
+    expect(c.plantio?.planta).toBe('trigo');
+    expect(ctx.inventario.quantidade('sementeTrigo')).toBe(4);
   });
 
-  it('não planta sem sementes', () => {
-    const { canteiro, inventario } = usar('enxada');
-    inventario.sementes = 0;
-    const { mudou } = usar('sementes', canteiro, inventario);
-    expect(mudou).toBe(false);
-    expect(canteiro.solo).toBe('arado');
+  it('não planta fora da estação da planta', () => {
+    const ctx = contexto('primavera');
+    const c = novoCanteiro(0, 0);
+    usar(c, ctx, 'enxada');
+    const r = usar(c, ctx, 'sementeGirassol'); // girassol é de verão
+    expect(r.mudou).toBe(false);
+    expect(r.aviso).toContain('não cresce na primavera');
   });
 
-  it('não dá para plantar nem regar terra que não foi arada', () => {
-    expect(usar('sementes').mudou).toBe(false);
-    expect(usar('regador').mudou).toBe(false);
+  it('regar gasta água do regador; com o regador vazio não rega', () => {
+    const { c, ctx } = plantado();
+    usar(c, ctx, 'regador');
+    expect(c.regado).toBe(true);
+    expect(ctx.inventario.aguaNoRegador).toBe(CAPACIDADE_REGADOR - 1);
+
+    const outro = novoCanteiro(1, 0);
+    usar(outro, ctx, 'enxada');
+    ctx.inventario.aguaNoRegador = 0;
+    expect(usar(outro, ctx, 'regador').aviso).toContain('vazio');
   });
 
-  it('sem água a planta não cresce', () => {
-    const { canteiro } = canteiroPlantado();
-    expect(crescer(canteiro, HORAS_PARA_CRESCER)).toBe(false);
-    expect(canteiro.horasCrescendo).toBe(0);
+  it('só cresce regada, e a terra seca no novo dia', () => {
+    const { c, ctx } = plantado();
+    expect(crescer(c, 10, false)).toBe(false);
+
+    usar(c, ctx, 'regador');
+    crescer(c, 10, false);
+    expect(c.plantio?.horas).toBe(10);
+
+    secar(c);
+    expect(crescer(c, 10, false)).toBe(false);
   });
 
-  it(`regada, fica pronta depois de ${HORAS_PARA_CRESCER} horas do jogo`, () => {
-    const { canteiro, inventario } = canteiroPlantado();
-    usar('regador', canteiro, inventario);
-
-    crescer(canteiro, HORAS_PARA_CRESCER - 1);
-    expect(estaPronto(canteiro)).toBe(false);
-
-    crescer(canteiro, 1);
-    expect(estaPronto(canteiro)).toBe(true);
+  it(`o trigo fica pronto depois de ${PLANTAS.trigo.horas} horas regado`, () => {
+    const { c, ctx } = plantado();
+    usar(c, ctx, 'regador');
+    crescer(c, PLANTAS.trigo.horas - 1, false);
+    expect(estaPronto(c)).toBe(false);
+    crescer(c, 1, true);
+    expect(estaPronto(c)).toBe(true);
   });
 
-  it(`colher dá ${COLHEITA_POR_PLANTA} trigo e deixa a terra arada, sem água`, () => {
-    const { canteiro, inventario } = canteiroPlantado();
-    usar('regador', canteiro, inventario);
-    crescer(canteiro, HORAS_PARA_CRESCER);
+  it('o girassol só cresce de dia e o lírio-da-lua só à noite', () => {
+    const girassol = plantado('sementeGirassol', 'verao');
+    usar(girassol.c, girassol.ctx, 'regador');
+    expect(crescer(girassol.c, 5, true)).toBe(false);
+    expect(crescer(girassol.c, 5, false)).toBe(true);
 
-    const { mudou } = usar('enxada', canteiro, inventario); // colher funciona com qualquer ferramenta
-    expect(mudou).toBe(true);
-    expect(inventario.trigo).toBe(COLHEITA_POR_PLANTA);
-    expect(canteiro.solo).toBe('arado');
-    expect(canteiro.regado).toBe(false);
+    const lirio = plantado('sementeLirio');
+    usar(lirio.c, lirio.ctx, 'regador');
+    expect(crescer(lirio.c, 5, false)).toBe(false);
+    expect(crescer(lirio.c, 5, true)).toBe(true);
+  });
+
+  it('terra adubada faz a planta crescer mais rápido', () => {
+    const { c, ctx } = plantado();
+    usar(c, ctx, 'adubo');
+    usar(c, ctx, 'regador');
+    crescer(c, 10, false);
+    expect(c.plantio?.horas).toBeCloseTo(10 * MULTIPLICADOR_ADUBO);
+  });
+
+  it('colher dá a quantidade da planta e deixa a terra arada', () => {
+    const { c, ctx } = plantado();
+    usar(c, ctx, 'regador');
+    crescer(c, PLANTAS.trigo.horas, false);
+
+    const r = usar(c, ctx, 'enxada'); // colher funciona com qualquer item
+    expect(r.mudou).toBe(true);
+    expect(ctx.inventario.quantidade('trigo')).toBe(PLANTAS.trigo.quantidade);
+    expect(c.plantio).toBeNull();
+    expect(c.arado).toBe(true);
+  });
+
+  it('com o inventário cheio a colheita fica no pé', () => {
+    const { c, ctx } = plantado();
+    usar(c, ctx, 'regador');
+    crescer(c, PLANTAS.trigo.horas, false);
+    ctx.inventario.slots = ctx.inventario.slots.map(() => ({ item: 'pedra', qtd: 99 }));
+
+    expect(usar(c, ctx, 'enxada').aviso).toBe('Inventário cheio');
+    expect(estaPronto(c)).toBe(true);
+  });
+
+  it('na troca de estação, o que não cresce nela morre e pode ser tirado', () => {
+    const { c, ctx } = plantado('sementeTrigo');
+    expect(mudarDeEstacao(c, 'verao')).toBe(false); // trigo também é de verão
+    expect(mudarDeEstacao(c, 'outono')).toBe(true);
+    expect(c.plantio?.morta).toBe(true);
+
+    usar(c, ctx, 'regador');
+    expect(c.plantio).toBeNull();
+  });
+
+  it('a lavoura guarda um canteiro por célula', () => {
+    const lavoura = new Lavoura();
+    const c = lavoura.pegar(3, 4);
+    c.arado = true;
+    expect(lavoura.pegar(3, 4).arado).toBe(true);
+    expect(lavoura.todos()).toHaveLength(1);
   });
 });

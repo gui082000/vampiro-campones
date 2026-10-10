@@ -5,29 +5,33 @@ import {
   HORA_NOVO_DIA,
   SEGUNDOS_POR_HORA,
 } from '../config';
+import type { Estacao } from '../dados/estacoes';
+import { estacaoDoDia } from '../estado/Calendario';
 import { Eventos } from '../util/Eventos';
 
 type EventosDoRelogio = {
+  // Um pedaço de tempo passou (nunca atravessa um marco: é todo de dia ou todo de noite)
+  passou: [horas: number, eNoite: boolean];
   'novo-dia': [dia: number];
   amanheceu: [];
   anoiteceu: [];
 };
 
-// Diz se a hora `marco` ficou para trás ao andar de `antes` até `depois`
-// (`depois` pode passar de 24 quando o passo atravessa a meia-noite).
-function cruzou(antes: number, depois: number, marco: number): boolean {
-  return (antes < marco && depois >= marco) || (antes < marco + 24 && depois >= marco + 24);
-}
+const MARCOS = [HORA_NOVO_DIA, HORA_AMANHECER, HORA_ANOITECER];
 
 // Controla a hora e o dia do jogo. Não desenha nada: o escurecimento e o HUD leem
-// daqui, e quem precisa reagir aos marcos do dia escuta os eventos 'novo-dia',
-// 'amanheceu' e 'anoiteceu' com relogio.ouvir(...).
+// daqui. Quem precisa do tempo escuta os eventos com relogio.ouvir(...): 'passou'
+// (para crescer, ter fome...) e os marcos 'novo-dia', 'amanheceu' e 'anoiteceu'.
 export class Relogio extends Eventos<EventosDoRelogio> {
   hora = HORA_INICIAL;
   dia = 1;
 
   get eNoite(): boolean {
     return this.hora >= HORA_ANOITECER || this.hora < HORA_AMANHECER;
+  }
+
+  get estacao(): Estacao {
+    return estacaoDoDia(this.dia);
   }
 
   // Hora no formato de relógio, ex.: "07:30"
@@ -38,26 +42,52 @@ export class Relogio extends Eventos<EventosDoRelogio> {
   }
 
   // Faz o tempo andar `deltaMs` milissegundos reais e devolve quantas horas do jogo
-  // passaram. Anda no máximo 1 hora por vez, para avisar cada marco uma vez e na
-  // ordem certa mesmo num salto grande (ex.: dormir até de manhã).
+  // passaram. Anda em pedaços que param em cada marco, para avisar cada um na ordem
+  // certa mesmo num salto grande (ex.: dormir até de manhã).
   avancar(deltaMs: number): number {
     const horasPassadas = deltaMs / 1000 / SEGUNDOS_POR_HORA;
-    for (let restante = horasPassadas; restante > 0; restante -= 1) {
-      this.andar(Math.min(restante, 1));
-    }
+    this.andar(horasPassadas);
     return horasPassadas;
   }
 
-  private andar(horas: number) {
-    const antes = this.hora;
-    const depois = antes + horas;
-    this.hora = depois % 24;
+  // Pula até a próxima vez que o relógio marcar essa hora (ex.: dormir até as 6h)
+  avancarAte(hora: number) {
+    const falta = (hora - this.hora + 24) % 24 || 24;
+    this.andar(falta);
+  }
 
-    if (cruzou(antes, depois, HORA_NOVO_DIA)) {
+  private andar(horas: number) {
+    let restante = horas;
+    while (restante > 1e-9) {
+      const { marco, falta } = this.proximoMarco();
+      // Chega no marco se o que falta andar cobre a distância até ele (com uma folga
+      // mínima, porque somar frações de hora sempre deixa um errinho de arredondamento)
+      const chegou = restante >= falta - 1e-9;
+      const passo = chegou ? falta : restante;
+      const eNoite = this.eNoite;
+      // Ao chegar, usa a hora exata do marco
+      this.hora = chegou ? marco : (this.hora + passo) % 24;
+      restante -= passo;
+      this.emitir('passou', passo, eNoite);
+      if (chegou) this.chegarNoMarco();
+    }
+  }
+
+  private proximoMarco(): { marco: number; falta: number } {
+    let proximo = { marco: MARCOS[0], falta: Infinity };
+    for (const marco of MARCOS) {
+      const falta = (marco - this.hora + 24) % 24 || 24;
+      if (falta < proximo.falta) proximo = { marco, falta };
+    }
+    return proximo;
+  }
+
+  private chegarNoMarco() {
+    if (this.hora === HORA_NOVO_DIA) {
       this.dia += 1;
       this.emitir('novo-dia', this.dia);
     }
-    if (cruzou(antes, depois, HORA_AMANHECER)) this.emitir('amanheceu');
-    if (cruzou(antes, depois, HORA_ANOITECER)) this.emitir('anoiteceu');
+    if (this.hora === HORA_AMANHECER) this.emitir('amanheceu');
+    if (this.hora === HORA_ANOITECER) this.emitir('anoiteceu');
   }
 }

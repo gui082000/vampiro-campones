@@ -1,6 +1,9 @@
 import type Phaser from 'phaser';
 import { CHAVE_MAPA_DADOS, CHAVE_MAPA_IMAGEM } from '../arte/carregar';
 import { CAMADA } from '../arte/Camadas';
+import { TINTA_DO_MAPA } from '../arte/Estacoes';
+import type { Estacao } from '../dados/estacoes';
+import type { AreaDeCelulas, Retangulo } from '../util/areas';
 
 // Tamanho de cada célula do mapa, em pixels
 export const TAMANHO_CELULA = 32;
@@ -27,11 +30,18 @@ export class Mapa {
   readonly linhas: number;
   readonly largura: number;
   readonly altura: number;
+  // Tudo o que o Tomás não atravessa: paredes, árvores e água do mapa, e o que os
+  // sistemas bloquearem depois (construções, pedras...)
   readonly colisores: Phaser.Physics.Arcade.StaticGroup;
 
+  private scene: Phaser.Scene;
+  private imagem: Phaser.GameObjects.Image;
+  private bloqueadas = new Set<number>();
+  private agua = new Set<number>();
   private rotulos = new Map<string, { x: number; y: number }>();
 
   constructor(scene: Phaser.Scene) {
+    this.scene = scene;
     const dados = scene.cache.json.get(CHAVE_MAPA_DADOS) as MapaRpg;
 
     this.colunas = dados.w;
@@ -39,28 +49,22 @@ export class Mapa {
     this.largura = dados.w * TAMANHO_CELULA;
     this.altura = dados.h * TAMANHO_CELULA;
 
-    scene.add.image(0, 0, CHAVE_MAPA_IMAGEM).setOrigin(0, 0).setDepth(CAMADA.mapa);
+    this.imagem = scene.add.image(0, 0, CHAVE_MAPA_IMAGEM).setOrigin(0, 0).setDepth(CAMADA.mapa);
 
     // Células bloqueadas: as de colisão do arquivo mais os objetos sólidos (paredes,
     // árvores, pedras); os decorativos acima ficam de fora.
-    const bloqueados = new Set<number>();
-    for (const c of dados.collisions) bloqueados.add(Number(c.split(':')[0]));
+    for (const c of dados.collisions) this.bloqueadas.add(Number(c.split(':')[0]));
     for (const o of dados.objects) {
       if (OBJETOS_DECORATIVOS.has(o.t.id)) continue;
-      bloqueados.add(o.y * dados.w + o.x);
+      this.bloqueadas.add(o.y * dados.w + o.x);
     }
-
-    for (const indice of this.celulasDeAgua(scene, dados.w, dados.h)) bloqueados.add(indice);
+    for (const indice of this.celulasDeAgua(scene, dados.w, dados.h)) this.agua.add(indice);
 
     this.colisores = scene.physics.add.staticGroup();
-    for (const indice of bloqueados) {
-      const x = indice % dados.w;
-      const y = Math.floor(indice / dados.w);
-      const caixa = scene.add
-        .rectangle(this.centroX(x), this.centroY(y), TAMANHO_CELULA, TAMANHO_CELULA)
-        .setVisible(false);
-      scene.physics.add.existing(caixa, true);
-      this.colisores.add(caixa);
+    for (const indice of new Set([...this.bloqueadas, ...this.agua])) {
+      const coluna = indice % dados.w;
+      const linha = Math.floor(indice / dados.w);
+      this.criarBloqueio({ coluna, linha, colunas: 1, linhas: 1 });
     }
 
     for (const r of dados.labels) {
@@ -100,6 +104,39 @@ export class Mapa {
     return agua;
   }
 
+  private dentro(coluna: number, linha: number): boolean {
+    return coluna >= 0 && linha >= 0 && coluna < this.colunas && linha < this.linhas;
+  }
+
+  // Se dá para pisar ou colocar algo na célula (dentro do mapa, sem parede nem água)
+  livre(coluna: number, linha: number): boolean {
+    const indice = linha * this.colunas + coluna;
+    return this.dentro(coluna, linha) && !this.bloqueadas.has(indice) && !this.agua.has(indice);
+  }
+
+  eAgua(coluna: number, linha: number): boolean {
+    return this.dentro(coluna, linha) && this.agua.has(linha * this.colunas + coluna);
+  }
+
+  // Bloqueia a passagem na área (construção, pedra, árvore...). Devolve o retângulo
+  // invisível com o corpo físico, para quem quiser ligar e desligar o bloqueio depois.
+  criarBloqueio(area: AreaDeCelulas): Phaser.GameObjects.Rectangle {
+    const r = this.areaEmPixels(area);
+    const caixa = this.scene.add.rectangle(r.x, r.y, r.largura, r.altura).setVisible(false);
+    this.scene.physics.add.existing(caixa, true);
+    this.colisores.add(caixa);
+    return caixa;
+  }
+
+  // Liga ou desliga um bloqueio criado por criarBloqueio
+  definirBloqueio(caixa: Phaser.GameObjects.Rectangle, ativo: boolean) {
+    (caixa.body as Phaser.Physics.Arcade.StaticBody).enable = ativo;
+  }
+
+  aplicarEstacao(estacao: Estacao) {
+    this.imagem.setTint(TINTA_DO_MAPA[estacao]);
+  }
+
   // Posição (em pixels) de um rótulo escrito no mapa, ex.: "Casa campones"
   posicaoDoRotulo(nome: string): { x: number; y: number } | undefined {
     return this.rotulos.get(nome);
@@ -116,5 +153,18 @@ export class Mapa {
   // Centro (em pixels) de uma célula dada em coluna/linha, como nas posições de dados/mundo
   centroDaCelula(celula: { coluna: number; linha: number }): { x: number; y: number } {
     return { x: this.centroX(celula.coluna), y: this.centroY(celula.linha) };
+  }
+
+  areaEmPixels(area: AreaDeCelulas): Retangulo {
+    return {
+      x: (area.coluna + area.colunas / 2) * TAMANHO_CELULA,
+      y: (area.linha + area.linhas / 2) * TAMANHO_CELULA,
+      largura: area.colunas * TAMANHO_CELULA,
+      altura: area.linhas * TAMANHO_CELULA,
+    };
+  }
+
+  celulaDe(x: number, y: number): { coluna: number; linha: number } {
+    return { coluna: Math.floor(x / TAMANHO_CELULA), linha: Math.floor(y / TAMANHO_CELULA) };
   }
 }

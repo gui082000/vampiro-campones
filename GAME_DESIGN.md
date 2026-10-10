@@ -30,18 +30,23 @@ Jogo 2D top-down de vida no campo + sobrevivência (referências: Stardew Valley
 
 | Onde | O que tem |
 |---|---|
-| `src/config.ts` | Números de balanceamento (tempo, preços, velocidades), com comentário |
-| `src/dados/` | Conteúdo editável: posições no mapa, ferramentas (depois: falas, itens, plantas, receitas...) |
+| `src/config.ts` | Números gerais de balanceamento (tempo, energia, inventário, pesca), com comentário |
+| `src/dados/` | Conteúdo editável: itens, plantas, recursos, receitas, construções, animais, peixes, estações e posições no mapa (`mundo.ts`). Preço, tempo e energia de cada coisa ficam junto da definição dela |
 | `src/estado/` | O que será salvo + regras puras (sem Phaser, por isso dá para testar) |
-| `src/sistemas/` | Uma mecânica por arquivo: Relogio, Jogador, Mapa, Fazenda, Loja, Interacao, Ferramentas |
-| `src/interface/` | Textos da tela (Hud) e o escurecimento da noite |
-| `src/arte/` | Único lugar que carrega imagens e desenha as formas provisórias |
+| `src/sistemas/` | Uma mecânica por arquivo: Relogio, Jogador, Mapa, Interacao, BarraDeAtalhos, Fazenda, Coleta, Pesca, Loja, Artesanato, Construcao, Animais, Casa. `Mundo.ts` é o que todos compartilham |
+| `src/interface/` | Tela: Hud, Menu, TelaDoInventario, Avisos, Transicao (tela preta ao dormir), Escurecimento |
+| `src/arte/` | Único lugar que carrega imagens e desenha as formas provisórias (objetos, ícones, estações) |
 | `src/cenas/` | `CenaPrincipal`: monta e conecta os sistemas |
-| `src/util/` | Peças genéricas (eventos, textos) |
+| `src/util/` | Peças genéricas (eventos, áreas, sorteio com semente, controle do teclado, textos) |
 
 - Mecânica nova = arquivo novo em `src/sistemas/`, ligado na `CenaPrincipal`.
-- Os sistemas reagem ao tempo escutando o relógio: `relogio.ouvir('novo-dia' | 'amanheceu' | 'anoiteceu', ...)`.
+- Os sistemas reagem ao tempo escutando o relógio: `relogio.ouvir('passou' | 'novo-dia' | 'amanheceu' | 'anoiteceu', ...)`.
+  O `passou` chega em pedaços que são todos de dia ou todos de noite (até quando o Tomás dorme).
 - No modo de desenvolvimento, o jogo fica acessível no console do navegador como `jogo`.
+
+**Controles:** WASD ou setas andam · E usa o que está à frente do Tomás (com o item da mão) · 1 a 8 ou a
+rodinha do mouse escolhem o item · F come o item da mão · I abre o inventário · Esc ou Q fecham menus ·
+Tab troca de lado no depósito.
 
 ## 3. Regras de trabalho
 
@@ -170,16 +175,27 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
 - Jogar de forma pacífica (só animais) é possível, porém mais lento e com um final próprio.
 - Nunca um beco sem saída; o jogador deve sentir a suspeita subir antes de ser tarde.
 
-## 7. Estado atual (fim da Fase 0)
+## 7. Estado atual (fim da Fase 1)
 
 - Mapa do RPG Map 2 (190×120 células de 32 px) com colisão em paredes, árvores e água; câmera segue o Tomás.
-- Tomás com sprite animado (frente, lado, costas), andando com WASD ou setas.
-- Relógio: 1 hora do jogo = 5 s. O dia vira às 6h; amanhece às 6h e anoitece às 19h (com eventos).
-  A tela escurece à noite e o relógio fica vermelho ("Vampiro").
-- Fazenda: 12 canteiros no campo cercado ao lado da casa. Teclas 1 (enxada), 2 (regador), 3 (sementes);
-  E para arar, plantar, regar e colher. Regada, a planta fica pronta em 36 horas do jogo e dá 2 trigos.
-- Barraca de sementes (1 moeda) e caixa de venda (2 moedas por trigo) no pátio da casa.
-- Ainda não existem aldeões (o código antigo, de bolinhas andando à toa, foi removido).
+  Muda de tom a cada estação.
+- Tomás com sprite animado; a tecla E age na célula à frente dele (contorno amarelo).
+- Relógio: 1 hora do jogo = 5 s; dia vira às 6h; noite das 19h às 6h. Calendário com 4 estações de 14 dias,
+  começando na primavera. O relógio para enquanto há menu ou inventário aberto.
+- Inventário de 24 espaços (tecla I), com barra de atalhos de 8 (teclas 1 a 8); itens empilham até 99.
+- Energia (100): ferramentas gastam; comer (F) e dormir recuperam.
+- Fazenda: todo o campo cercado ao lado da casa pode ser arado. 8 plantas com estações próprias (girassol só
+  cresce de dia, lírio-da-lua só à noite). A terra seca todo dia às 6h; adubo acelera; fora da estação a planta morre.
+- Coleta: árvores (machado → madeira), pedras (picareta → pedra), mato (→ fibra), arbustos de amora, ervas
+  medicinais, cogumelos no outono. Tudo volta depois de alguns dias.
+- Pesca no rio com a vara (feita na bancada): esperar a mordida e apertar E no "!". Peixes de dia e de noite.
+- Bancada no pátio (vara de pesca, feno, adubo). Barraca vende as sementes da estação; caixa de venda compra
+  tudo (o "vender tudo" deixa de fora os materiais de construção).
+- Construções no campo: galinheiro, celeiro, poço, cerca do pasto. Na porta da casa: dormir, cozinhar,
+  depósito (baú de 24 espaços) e melhorias (cama de madeira, cozinha, depósito).
+- Animais: galinhas e vacas, compradas no próprio abrigo; comem do comedouro (trigo ou feno) ou pastam com a
+  cerca; dão ovo ou leite por dia.
+- Ainda não existem aldeões nem nada do vampiro (Fases 3 e 4).
 
 ## 8. Decisões tomadas
 
@@ -195,8 +211,30 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
   - falta criar o cemitério.
 - **2026-10-09 —** Barraca de sementes e caixa de venda ficam provisoriamente no pátio da casa, até a vila existir.
 - **2026-10-09 —** O dia vira às 6h (a madrugada conta como a noite do dia anterior). Noite = das 19h às 6h.
-- **2026-10-09 —** A rega vale até a colheita (não seca com os dias). Rever na Fase 1.
 - **2026-10-09 —** Commits ficam no computador; envio para o GitHub só quando o diretor pedir.
+
+**Fase 1 (2026-10-10):**
+- A planta cresce pelas horas em que está regada; **a terra seca todo dia às 6h** (na Fase 0 a rega valia até a
+  colheita). A chuva, na Fase 8, vai regar sozinha.
+- O campo cercado inteiro pode ser arado, célula a célula; a tecla E age na célula à frente do Tomás.
+- Energia: arar 2, regar 1, pescar 2, cortar árvore e quebrar pedra 3 por golpe, arrancar mato 1. Plantar,
+  colher e catar frutas e ervas não gastam. Sem energia, as ferramentas não funcionam.
+- Dormir pela porta da casa, a qualquer hora: acorda às 6h. Na palha volta a 80% da energia; com a cama de
+  madeira, 100%. As plantas continuam crescendo durante o sono.
+- O jogo começa no 1º dia da primavera (`ESTACAO_INICIAL` no config). O ano vira na primavera.
+- Planta fora da estação morre na troca de estação e fica no canteiro até ser tirada (E).
+- Lírio-da-lua: só cresce à noite. O Tomás começa com 3 sementes "encontradas na casa do tio" e a barraca
+  também vende (30 moedas). Rever na história (Fase 7).
+- Recursos nascem em lugares sorteados com semente fixa (sempre os mesmos) e voltam depois de alguns dias.
+- Animais são comprados no próprio galinheiro/celeiro (até existir a vila). Cada um come 1 porção por dia;
+  com a cerca do pasto pastam e não precisam do comedouro, menos no inverno.
+- O **porão secreto** ficou para a Fase 4 (lá a fase já prevê "esconderijo/porão").
+- Os itens do vampiro (unguento contra o sol, ervas de disfarce, tônico rubro) já existem, mas as receitas
+  ficam bloqueadas até a Fase 4.
+- Números de cada item, planta, construção e animal ficam junto da definição em `src/dados`; o `config.ts`
+  guarda só os números gerais.
+- Árvores, pedras, construções e animais são desenhados por código (provisório), e o Tomás passa atrás deles.
+  As árvores pintadas na imagem do mapa continuam sempre por baixo dele.
 
 ## 9. Decisões pendentes
 
@@ -206,14 +244,15 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
     das coisas exige uma camada separada ou migrar para o Tiled;
   - como o mundo é um mapa aberto, a proposta é ter troca de tela só ao entrar em lugares fechados
     (casa, porão, igreja).
-- **Na Fase 4:** duração do dia. Com 2 minutos por dia, a noite dura cerca de 1 minuto, curta para caçar
-  com furtividade. É só um número no `config.ts`.
+- **Duração do dia (recomendo decidir já):** com 1 hora = 5 s, o dia de trabalho (6h às 19h) dura só 65 s
+  reais, pouco para regar, coletar e cuidar dos animais; a noite dura 55 s, curta para caçar com furtividade.
+  Sugestão: 1 hora = 12 s (dia inteiro ≈ 5 min, 30 dias ≈ 2,5 horas de jogo). É só `SEGUNDOS_POR_HORA` no `config.ts`.
 
 ## 10. Fases de desenvolvimento
 
 - [x] **Fase 0 – Preparação:** pastas organizadas, relógio com eventos, fazenda religada no mapa novo,
   testes automáticos e este documento.
-- [ ] **Fase 1 – Fazenda completa:** estações, mais plantas, energia, coleta, animais, construção básica,
+- [x] **Fase 1 – Fazenda completa:** estações, 8 plantas, energia, coleta, pesca, animais, construção básica,
   artesanato, inventário em grade.
 - [ ] **Fase 2 – Mundo e vila:** fazenda, vila, floresta e cemitério; transição entre áreas; construções da vila.
 - [ ] **Fase 3 – Aldeões:** rotinas, falas, amizade, missões, loja expandida, diário.

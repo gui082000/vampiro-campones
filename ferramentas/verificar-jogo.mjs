@@ -16,6 +16,8 @@
 //   {"apertar": "e"}                 aperta e solta uma tecla (a, s, d, w, e, 1, 2, 3)
 //   {"esperar": 500}                 deixa o jogo correr esse tempo (em ms do jogo)
 //   {"js": "expressão", "rotulo": "texto"}  roda código na página e mostra o resultado
+//   {"esperarAte": "expressão", "maxQuadros": 600}  avança quadros até a expressão dar true
+//   {"conferir": "expressão", "rotulo": "texto"}  como js, mas o teste falha se não der true
 import { spawn } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
@@ -107,14 +109,19 @@ async function avaliar(expressao) {
 }
 
 const TECLAS = {
-  a: ['KeyA', 65], s: ['KeyS', 83], d: ['KeyD', 68], w: ['KeyW', 87], e: ['KeyE', 69],
-  1: ['Digit1', 49], 2: ['Digit2', 50], 3: ['Digit3', 51],
+  a: ['KeyA', 65, 'a'], s: ['KeyS', 83, 's'], d: ['KeyD', 68, 'd'], w: ['KeyW', 87, 'w'],
+  e: ['KeyE', 69, 'e'], f: ['KeyF', 70, 'f'], i: ['KeyI', 73, 'i'], q: ['KeyQ', 81, 'q'],
+  esc: ['Escape', 27, 'Escape'], enter: ['Enter', 13, 'Enter'], tab: ['Tab', 9, 'Tab'],
+  cima: ['ArrowUp', 38, 'ArrowUp'], baixo: ['ArrowDown', 40, 'ArrowDown'],
+  ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8].map((n) => [n, [`Digit${n}`, 48 + n, String(n)]])),
 };
 
 async function tecla(t, tipo) {
-  const [code, codigo] = TECLAS[t];
+  const definicao = TECLAS[t];
+  if (!definicao) throw new Error(`Tecla desconhecida no roteiro: ${t}`);
+  const [code, codigo, key] = definicao;
   await cdp('Input.dispatchKeyEvent', {
-    type: tipo, key: String(t), code, windowsVirtualKeyCode: codigo, nativeVirtualKeyCode: codigo,
+    type: tipo, key, code, windowsVirtualKeyCode: codigo, nativeVirtualKeyCode: codigo,
   });
 }
 
@@ -180,10 +187,21 @@ try {
     if (!pronto) await esperar(250);
   }
   if (!pronto) throw new Error('O jogo não carregou (o npm run dev está rodando?)');
+  // O relógio real (Date.now) também passa a andar só com os quadros: as animações do
+  // Phaser (tweens) medem o tempo por ele, e sem isso uma animação de 1 s nunca terminaria
+  // num roteiro que avança 300 quadros em poucos milissegundos.
   await avaliar(`(() => {
     jogo.loop.sleep();
     let t = performance.now();
-    window.__passos = (n) => { for (let i = 0; i < n; i++) { t += 1000 / 60; jogo.step(t, 1000 / 60); } };
+    let agora = Date.now();
+    Date.now = () => agora;
+    window.__passos = (n) => {
+      for (let i = 0; i < n; i++) {
+        t += 1000 / 60;
+        agora += 1000 / 60;
+        jogo.step(t, 1000 / 60);
+      }
+    };
   })()`);
 
   for (const passo of roteiro) {
@@ -192,6 +210,20 @@ try {
     else if (passo.esperar) await passos(passo.esperar / (1000 / 60));
     else if (passo.andar) falhou = !(await andar(passo.andar, passo.ate)) || falhou;
     else if (passo.js) console.log(`${passo.rotulo ?? 'js'}: ${JSON.stringify(await avaliar(passo.js))}`);
+    else if (passo.esperarAte) {
+      const quadros = await avaliar(`(() => {
+        let n = 0;
+        while (n < ${passo.maxQuadros ?? 600} && !(${passo.esperarAte})) { __passos(1); n++; }
+        return (${passo.esperarAte}) ? n : -1;
+      })()`);
+      const ok = quadros >= 0;
+      if (!ok) falhou = true;
+      console.log(`esperar até ${passo.rotulo ?? passo.esperarAte}: ${ok ? `ok (${quadros} quadros)` : 'NÃO ACONTECEU'}`);
+    } else if (passo.conferir) {
+      const ok = (await avaliar(passo.conferir)) === true;
+      if (!ok) falhou = true;
+      console.log(`${ok ? 'ok   ' : 'FALHOU'} ${passo.rotulo ?? passo.conferir}`);
+    }
   }
 } catch (erro) {
   falhou = true;
