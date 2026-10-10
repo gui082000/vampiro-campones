@@ -1,5 +1,6 @@
 import { criarRotulo, desenharCercaDoCemiterio, desenharLapide, desenharPlaca, desenharPredio } from '../arte/Objetos';
 import { CEMITERIO, PLACAS, PREDIOS } from '../dados/vila';
+import { nivel } from '../estado/Suspeita';
 import type { Interiores } from './Interiores';
 import { TAMANHO_CELULA } from './Mapa';
 import { anotarPista, type Mundo } from './Mundo';
@@ -19,6 +20,8 @@ export class Vila {
         ...porta,
         dica: () => (predio.interior ? `${predio.nome} · E: entrar` : `${predio.nome} · trancado`),
         acao: () => {
+          const trancadoANoite = mundo.relogio.eNoite && nivel(mundo.suspeita) >= 4 && predio.interior !== 'casaDoTomas';
+          if (trancadoANoite) return avisos.mostrar('Trancado. Com medo, ninguém abre a porta à noite.');
           if (predio.interior) return interiores.entrar(predio.interior, fora);
           avisos.mostrar(predio.trancado);
           if (predio.trancado) anotarPista(mundo, predio.trancado);

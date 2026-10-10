@@ -8,6 +8,7 @@ import type { Inventario } from '../estado/Inventario';
 import type { Interacao } from '../sistemas/Interacao';
 import type { Relogio } from '../sistemas/Relogio';
 import { sinalVisivel, type Vampiro } from '../estado/Vampiro';
+import { faixa, type Suspeita } from '../estado/Suspeita';
 import { CaixaDeItem } from './CaixaDeItem';
 
 const ESTILO_TEXTO: Phaser.Types.GameObjects.Text.TextStyle = {
@@ -43,11 +44,15 @@ export class Hud {
   private assinaturaDaBarra = '';
 
   private vampiro: Vampiro;
+  private suspeita: Suspeita;
+  private barraSuspeita!: Phaser.GameObjects.Rectangle;
+  private textoSuspeita!: Phaser.GameObjects.Text;
   private barraFome!: Phaser.GameObjects.Rectangle;
   private textoFome!: Phaser.GameObjects.Text;
 
-  constructor(scene: Phaser.Scene, relogio: Relogio, inventario: Inventario, energia: Energia, interacao: Interacao, vampiro: Vampiro) {
+  constructor(scene: Phaser.Scene, relogio: Relogio, inventario: Inventario, energia: Energia, interacao: Interacao, vampiro: Vampiro, suspeita: Suspeita) {
     this.vampiro = vampiro;
+    this.suspeita = suspeita;
     this.relogio = relogio;
     this.inventario = inventario;
     this.energia = energia;
@@ -70,6 +75,11 @@ export class Hud {
     fixo(scene.add.rectangle(12, 138, LARGURA_BARRA_ENERGIA + 4, 16, 0x000000, 0.65).setOrigin(0, 0.5));
     this.barraFome = fixo(scene.add.rectangle(14, 138, 0, 12, 0xb02030).setOrigin(0, 0.5));
     this.textoFome = texto(LARGURA_BARRA_ENERGIA + 22, 129, { ...ESTILO_TEXTO, fontSize: '13px', padding: { x: 4, y: 1 } });
+
+    // Suspeita da vila: barra roxa e o nome da faixa
+    fixo(scene.add.rectangle(12, 160, LARGURA_BARRA_ENERGIA + 4, 16, 0x000000, 0.65).setOrigin(0, 0.5));
+    this.barraSuspeita = fixo(scene.add.rectangle(14, 160, 0, 12, 0x8a4ac0).setOrigin(0, 0.5));
+    this.textoSuspeita = texto(LARGURA_BARRA_ENERGIA + 22, 151, { ...ESTILO_TEXTO, fontSize: '13px', padding: { x: 4, y: 1 } });
 
     const inicioBarra = LARGURA / 2 - ((TAMANHO_BARRA - 1) * ESPACO_BARRA) / 2;
     for (let i = 0; i < TAMANHO_BARRA; i++) {
@@ -108,6 +118,9 @@ export class Hud {
     const sinal = sinalVisivel(this.vampiro, dia);
     this.textoFome.setText(`Fome ${Math.round(fome)}${sinal ? ` · ${sinal}` : ''}${essencia ? ` · essência ${essencia}` : ''}`);
     this.textoFome.setColor(sinal ? '#ff8080' : '#ffffff');
+
+    this.barraSuspeita.setSize(LARGURA_BARRA_ENERGIA * (this.suspeita.valor / 100), 12);
+    this.textoSuspeita.setText(`Suspeita: ${faixa(this.suspeita).nome}${this.suspeita.carregando ? ' · carregando um corpo' : ''}`);
 
     this.atualizarBarra();
 

@@ -24,7 +24,7 @@ import { beber } from '../estado/Vampiro';
 import type { AreaDeCelulas } from '../util/areas';
 import type { Construcao } from './Construcao';
 import { TAMANHO_CELULA } from './Mapa';
-import type { Mundo } from './Mundo';
+import { registrarMordida, type Mundo } from './Mundo';
 
 const VELOCIDADE: Record<Abrigo, number> = { galinheiro: 32, celeiro: 18 }; // pixels por segundo
 
@@ -150,6 +150,7 @@ export class Animais {
             aoEscolher: () => {
               animal.fraco = true;
               animal.produtoPronto = false;
+              registrarMordida(this.mundo);
               avisos.mostrar(beber(this.mundo.vampiro, 'animalDaFazenda', animal.nome).aviso);
               return 'fechar' as const;
             },

@@ -2,6 +2,7 @@ import { desenharCaixaDeVenda } from '../arte/Objetos';
 import { definicaoDoItem, nomeDoItem, type IdItem } from '../dados/itens';
 import { LOJA_ABRE, LOJA_FECHA, OUTROS_ITENS_DA_LOJA } from '../dados/loja';
 import type { Aldeoes } from './Aldeoes';
+import { nivel } from '../estado/Suspeita';
 import { CAIXA_DE_VENDA } from '../dados/mundo';
 import { comprar, itensVendaveis, sementesAVenda, vendaRapida, vender, venderTudo } from '../estado/Comercio';
 import { textoDoItem } from '../interface/textos';
@@ -34,12 +35,16 @@ export class Loja {
 
   private abrirLoja() {
     const { menu, inventario, relogio, avisos } = this.mundo;
-    const opcao = (item: IdItem, preco: number) => ({
+    const caro = nivel(this.mundo.suspeita) >= 2 ? 1.25 : 1; // na desconfiança, tudo mais caro
+    const opcao = (item: IdItem, precoNormal: number) => {
+      const preco = Math.ceil(precoNormal * caro);
+      return {
       texto: `${nomeDoItem(item)} — ${moedas(preco)}`,
       detalhe: textoDoItem(item),
       ativa: inventario.moedas >= preco,
       aoEscolher: () => avisos.mostrar(comprar(item, inventario, preco).aviso),
-    });
+      };
+    };
     menu.abrir(
       () => `Loja da Dona Cida · ${moedas(inventario.moedas)}`,
       () => [

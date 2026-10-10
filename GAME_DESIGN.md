@@ -268,6 +268,19 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
 - A primeira mordida libera na bancada as receitas do vampiro: unguento contra o sol, ervas de disfarce
   (escondem os sinais por um dia) e tônico rubro (-20 de fome), usados com F.
 
+**Fase 5 (2026-10-10):**
+- Suspeita de 0 a 100 (números no `config.ts`, em `SUSPEITA`). Sobe com aldeão desaparecido (+25), viajante
+  desaparecido (+8), vítima que lembra (+12), ser visto mordendo (+20), sinal notado (+3) e corpo encontrado
+  (+15). Desce 3 por dia, com missão concluída (-4), presente (-1), doação de 50 moedas no altar da igreja (-6)
+  e a história do lobo contada para a Dona Rosália (-6, uma vez por dia).
+- Faixas: Calma (0), Boatos (20), Desconfiança (40: loja 25% mais cara; quem tem menos de 3 corações não fala
+  com você; sermão de manhã), Investigação (60: Orlando faz ronda das 21h às 4h), Caça aberta (80: portas da vila
+  trancadas à noite e armadilhas nos caminhos, que prendem e tiram 25 de energia). Em 100: final Linchado.
+- Furtividade simples: qualquer aldeão acordado a até 6 células, no mesmo lugar (fora ou na mesma sala), vê a
+  mordida. O menu da mordida avisa quem pode ver. Sombras e névoa ficam para a Fase 8.
+- Quem morre deixa um corpo onde estava. Carregar deixa o Tomás 40% mais lento; queimar na fogueira abaixo das
+  ruínas da colina some com ele. O que não for queimado até as 6h é encontrado.
+
 ## 9. Decisões pendentes
 
 - Mapa em imagem única: as árvores pintadas no mapa sempre ficam por baixo do Tomás. Resolver na arte final
@@ -298,8 +311,8 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
 - [x] **Fase 3 – Aldeões:** 9 aldeões com rotina, falas por amizade, presentes, 15 missões, loja da Dona Cida, diário (J).
 - [x] **Fase 4 – Vampirismo:** fome, modo noturno, alimentação (animais, cervos, viajantes, aldeões; com e
   sem matar), sinais físicos, sol, porão (caixão, cofre, altar), poderes velocidade/visão noturna/hipnose.
-- [ ] **Fase 5 – Caça e suspeita:** furtividade, testemunhas, evidências, suspeita com faixas e reação da vila,
-  Orlando e as rondas.
+- [x] **Fase 5 – Caça e suspeita:** testemunhas, corpos e fogueira, suspeita com 5 faixas e reação da vila,
+  rondas e armadilhas do Orlando, linchamento.
 - [ ] **Fase 6 – Salvar/carregar,** menus, tela inicial, pausa, opções.
 - [ ] **Fase 7 – História:** Atos 1, 2 e 3 com eventos, diários, cenas curtas e pistas; Senhor da Colina; os 5 finais.
 - [ ] **Fase 8 – Clima,** estações, lua, poderes avançados, eventos aleatórios e festivais.

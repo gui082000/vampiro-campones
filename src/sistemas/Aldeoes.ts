@@ -11,7 +11,11 @@ import { beber, sinalVisivel } from '../estado/Vampiro';
 import type { Dialogo } from '../interface/Dialogo';
 import type { Interiores } from './Interiores';
 import { TAMANHO_CELULA } from './Mapa';
-import { anotarPista, type Mundo } from './Mundo';
+import { anotarPista, registrarMordida, type Mundo } from './Mundo';
+import type { Jogador } from './Jogador';
+import { RAIO_DE_VISAO, SUSPEITA } from '../config';
+import { RONDA, RONDA_COMECA, RONDA_TERMINA } from '../dados/vigilancia';
+import { nivel, somarSuspeita } from '../estado/Suspeita';
 
 const VELOCIDADE = 34; // pixels por segundo, passeando
 
@@ -34,8 +38,13 @@ export class Aldeoes {
   private dialogo: Dialogo;
   private naTela: AldeaoNaTela[] = [];
 
-  constructor(mundo: Mundo, interiores: Interiores, dialogo: Dialogo) {
+  private jogador: Jogador;
+  private passoDaRonda = 0;
+
+  constructor(mundo: Mundo, interiores: Interiores, dialogo: Dialogo, jogador: Jogador) {
     this.mundo = mundo;
+    this.jogador = jogador;
+    mundo.testemunhas = () => this.testemunhas();
     this.interiores = interiores;
     this.dialogo = dialogo;
 
@@ -97,6 +106,12 @@ export class Aldeoes {
         continue;
       }
       const def: DefinicaoDeAldeao = ALDEOES[a.id];
+      if (this.emRonda(a.id)) {
+        this.rondar(a, deltaMs);
+        a.sprite.setVisible(true).setDepth(profundidadeNoMundo(a.sprite.y + 14));
+        continue;
+      }
+      if (a.lugarAtual === -2) a.lugarAtual = -1; // acabou a ronda: volta à rotina
       const indice = this.lugarDaHora(def);
       if (indice !== a.lugarAtual) {
         // Mudou de lugar na rotina: aparece lá (sem atravessar o mapa a pé)
@@ -110,6 +125,28 @@ export class Aldeoes {
       this.passear(a, deltaMs);
       a.sprite.setDepth(profundidadeNoMundo(a.sprite.y + 14));
     }
+  }
+
+  private rondar(a: AldeaoNaTela, deltaMs: number) {
+    if (a.lugarAtual !== -2) {
+      a.lugarAtual = -2;
+      a.sala = 'fora';
+      const inicio = this.mundo.mapa.centroDaCelula(RONDA[this.passoDaRonda]);
+      a.sprite.setPosition(inicio.x, inicio.y - 14);
+    }
+    const alvo = this.mundo.mapa.centroDaCelula(RONDA[this.passoDaRonda]);
+    const dx = alvo.x - a.sprite.x;
+    const dy = alvo.y - 14 - a.sprite.y;
+    const distancia = Math.hypot(dx, dy);
+    const passo = (VELOCIDADE * 1.6 * deltaMs) / 1000;
+    if (distancia <= passo) {
+      this.passoDaRonda = (this.passoDaRonda + 1) % RONDA.length;
+      return;
+    }
+    a.sprite.setPosition(a.sprite.x + (dx / distancia) * passo, a.sprite.y + (dy / distancia) * passo);
+    const direcao = Math.abs(dx) > Math.abs(dy) ? 'lado' : dy < 0 ? 'cima' : 'baixo';
+    a.sprite.setFlipX(direcao === 'lado' && dx > 0);
+    a.sprite.anims.play(animacaoAndar(direcao), true);
   }
 
   // Anda devagar em volta do lugar (fora, até uma célula para cada lado; dentro, parado)
@@ -138,6 +175,25 @@ export class Aldeoes {
     a.sprite.anims.play(animacaoAndar(direcao), true);
   }
 
+  // Quem está acordado, na mesma sala (ou fora) e perto do Tomás: vê o que ele faz
+  testemunhas(): IdAldeao[] {
+    const pes = this.jogador.celulaDosPes;
+    return this.naTela
+      .filter((a) => this.mundo.relacoes.vivo(a.id) && !this.dormindo(a.id) && a.sala === this.interiores.local)
+      .filter((a) => {
+        const dx = Math.floor(a.sprite.x / TAMANHO_CELULA) - pes.coluna;
+        const dy = Math.floor((a.sprite.y + 14) / TAMANHO_CELULA) - pes.linha;
+        return Math.hypot(dx, dy) <= RAIO_DE_VISAO;
+      })
+      .map((a) => a.id);
+  }
+
+  // Na investigação, o Orlando ronda à noite em vez de ir para casa
+  private emRonda(id: IdAldeao): boolean {
+    const hora = this.mundo.relogio.hora;
+    return id === 'orlando' && nivel(this.mundo.suspeita) >= 3 && (hora >= RONDA_COMECA || hora < RONDA_TERMINA);
+  }
+
   // À noite, na própria casa (o primeiro lugar da rotina), o aldeão está dormindo
   private dormindo(id: IdAldeao): boolean {
     const casa = (ALDEOES[id] as DefinicaoDeAldeao).rotina[0][1].sala;
@@ -147,11 +203,15 @@ export class Aldeoes {
   private abrirMordida(id: IdAldeao) {
     const { menu, vampiro, relacoes, missoes, avisos, relogio } = this.mundo;
     const def: DefinicaoDeAldeao = ALDEOES[id];
-    menu.abrir(`${def.nome} dorme. A respiração é lenta.`, () => [
+    menu.abrir(() => {
+      const vendo = this.testemunhas().map((t) => (ALDEOES[t] as DefinicaoDeAldeao).nome);
+      return `${def.nome} dorme.${vendo.length ? `  Cuidado: ${vendo.join(', ')} pode ver!` : ' A respiração é lenta.'}`;
+    }, () => [
       {
         texto: 'Beber um pouco',
         detalhe: ALIMENTOS.aldeaoPouco.descricao + (vampiro.tem('hipnose') ? ' Com a hipnose, não vai lembrar de nada.' : ' Sem hipnose, vai lembrar e perder a confiança em você.'),
         aoEscolher: () => {
+          registrarMordida(this.mundo);
           avisos.mostrar(beber(vampiro, 'aldeaoPouco', def.nome).aviso);
           relacoes.fracoNoDia[id] = relogio.dia + (relogio.hora >= 6 ? 1 : 0);
           if (!vampiro.tem('hipnose')) {
@@ -165,6 +225,7 @@ export class Aldeoes {
         texto: 'Beber até o fim',
         detalhe: `${ALIMENTOS.aldeaoFim.descricao} Você nunca mais vai ver ${def.nome}.`,
         aoEscolher: () => {
+          registrarMordida(this.mundo);
           avisos.mostrar(beber(vampiro, 'aldeaoFim', def.nome).aviso);
           registrarMorte(relacoes, id);
           for (const m of missoes.ativas()) if (MISSOES[m].aldeao === id) delete missoes.situacao[m];
@@ -194,6 +255,11 @@ export class Aldeoes {
             texto: 'Conversar',
             aoEscolher: () => {
               const fraco = relacoes.fracoNoDia[id] === relogio.dia;
+              const recusa = nivel(this.mundo.suspeita) >= 2 && relacoes.coracoes(id) < 3;
+              if (recusa) {
+                falar(['Não tenho nada pra falar com você.']);
+                return 'fechar';
+              }
               const fala = fraco ? 'Acordei tão fraco hoje... e com duas marquinhas no pescoço. Mosquito, deve ser.' : conversar(relacoes, id, relogio.dia);
               const sinal = sinalVisivel(this.mundo.vampiro, relogio.dia);
               if (sinal) this.mundo.vampiro.registro.push(`sinal:${id}`);
@@ -222,7 +288,9 @@ export class Aldeoes {
             detalhe: `Precisa de ${textoDoPedido(ativa)}.`,
             ativa: podeEntregar(ativa, inventario),
             aoEscolher: () => {
-              avisos.mostrar(entregar(missoes, ativa, inventario, relacoes).aviso);
+              const entrega = entregar(missoes, ativa, inventario, relacoes);
+              avisos.mostrar(entrega.aviso);
+              if (entrega.mudou) avisos.mostrar(somarSuspeita(this.mundo.suspeita, SUSPEITA.missaoConcluida));
               falar([m.agradecimento], () => m.pista && anotarPista(this.mundo, m.pista));
               return 'fechar';
             },
@@ -234,7 +302,23 @@ export class Aldeoes {
             texto: `Dar de presente: ${nomeDoItem(item).toLowerCase()}`,
             detalhe: 'Um presente por dia. Cada um tem seus gostos.',
             aoEscolher: () => {
-              avisos.mostrar(presentear(relacoes, id, inventario).aviso);
+              const presente = presentear(relacoes, id, inventario);
+              avisos.mostrar(presente.aviso);
+              if (presente.mudou) somarSuspeita(this.mundo.suspeita, SUSPEITA.presente);
+              return 'fechar';
+            },
+          });
+        }
+        const { suspeita } = this.mundo;
+        if (id === 'rosalia' && suspeita.valor >= 20 && suspeita.culpouOLoboNoDia !== relogio.dia) {
+          opcoes.push({
+            texto: 'Comentar sobre pegadas de lobo',
+            detalhe: 'A Rosália espalha qualquer história. Uma por dia.',
+            aoEscolher: () => {
+              suspeita.culpouOLoboNoDia = relogio.dia;
+              falar(['Pegadas enormes perto do rio? Então é lobo mesmo! Vou contar pra todo mundo.'], () =>
+                avisos.mostrar(somarSuspeita(suspeita, SUSPEITA.culparOLobo) ?? 'A história do lobo corre pela vila.'),
+              );
               return 'fechar';
             },
           });

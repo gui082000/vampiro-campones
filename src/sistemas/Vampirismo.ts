@@ -1,4 +1,4 @@
-import { FOME_ALTA, MULTIPLICADOR_VELOCIDADE_FOME, MULTIPLICADOR_VELOCIDADE_NOITE } from '../config';
+import { FOME_ALTA, MULTIPLICADOR_VELOCIDADE_FOME, MULTIPLICADOR_VELOCIDADE_NOITE, VELOCIDADE_CARREGANDO_CORPO } from '../config';
 import { fecharDia, passarTempo, queimarNoAmanhecer } from '../estado/Vampiro';
 import type { FimDeJogo } from '../interface/FimDeJogo';
 import type { Interiores } from './Interiores';
@@ -49,6 +49,7 @@ export class Vampirismo {
     let multiplicador = 1;
     if (relogio.eNoite) multiplicador *= MULTIPLICADOR_VELOCIDADE_NOITE * (vampiro.tem('velocidade') ? 1.25 : 1);
     if (vampiro.fome >= FOME_ALTA) multiplicador *= MULTIPLICADOR_VELOCIDADE_FOME;
+    if (this.mundo.suspeita.carregando) multiplicador *= VELOCIDADE_CARREGANDO_CORPO;
     this.jogador.multiplicadorDeVelocidade = multiplicador;
     if (relogio.eNoite) this.jogador.sprite.setTint(TOM_DA_NOITE);
     else this.jogador.sprite.clearTint();

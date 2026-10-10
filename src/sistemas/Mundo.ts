@@ -5,6 +5,8 @@ import type { Diario } from '../estado/Diario';
 import type { Missoes } from '../estado/Missoes';
 import type { Relacoes } from '../estado/Relacoes';
 import type { Vampiro } from '../estado/Vampiro';
+import type { Suspeita } from '../estado/Suspeita';
+import type { IdAldeao } from '../dados/aldeoes';
 import type { Energia } from '../estado/Energia';
 import type { Inventario } from '../estado/Inventario';
 import type { Recipiente } from '../estado/Recipiente';
@@ -37,6 +39,14 @@ export interface Mundo {
   diario: Diario;
   vampiro: Vampiro;
   cofre: Recipiente; // cofre do porão
+  suspeita: Suspeita;
+  // Aldeões acordados que estão vendo o Tomás agora (preenchido pelo sistema de aldeões)
+  testemunhas: () => IdAldeao[];
+}
+
+// Chamado em toda mordida: quem estiver acordado e perto viu tudo
+export function registrarMordida(mundo: Mundo) {
+  for (const id of mundo.testemunhas()) mundo.vampiro.registro.push(`visto:${id}`);
 }
 
 // Anota uma pista no diário e avisa, só na primeira vez

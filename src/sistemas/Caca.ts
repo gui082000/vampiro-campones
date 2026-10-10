@@ -2,6 +2,7 @@ import type Phaser from 'phaser';
 import { profundidadeNoMundo } from '../arte/Camadas';
 import { CHAVE_JOGADOR, ESCALA_JOGADOR, quadroParado } from '../arte/Personagem';
 import { CHANCE_DE_VIAJANTE } from '../config';
+import { ALDEOES } from '../dados/aldeoes';
 import {
   ACAMPAMENTO_DO_VIAJANTE,
   ALIMENTOS,
@@ -13,7 +14,7 @@ import {
 } from '../dados/vampiro';
 import { beber } from '../estado/Vampiro';
 import { TAMANHO_CELULA } from './Mapa';
-import type { Mundo } from './Mundo';
+import { registrarMordida, type Mundo } from './Mundo';
 
 interface Cervo {
   grafico: Phaser.GameObjects.Graphics;
@@ -61,6 +62,7 @@ export class Caca {
         acao: () => {
           cervo.vivo = false;
           g.setVisible(false);
+          registrarMordida(mundo);
           mundo.avisos.mostrar(beber(mundo.vampiro, 'cervo', 'um cervo').aviso);
         },
       });
@@ -121,11 +123,16 @@ export class Caca {
       this.viajante.setVisible(false);
       this.fogueira.setVisible(false);
     };
-    menu.abrir(`Na beira da estrada, ${this.quemViaja} dorme junto ao fogo.`, () => [
+    menu.abrir(() => {
+      const vendo = this.mundo.testemunhas().map((id) => ALDEOES[id].nome);
+      const cuidado = vendo.length ? `  Cuidado: ${vendo.join(', ')} pode ver!` : '';
+      return `Na beira da estrada, ${this.quemViaja} dorme junto ao fogo.${cuidado}`;
+    }, () => [
       {
         texto: 'Beber um pouco',
         detalhe: ALIMENTOS.viajantePouco.descricao + (vampiro.tem('hipnose') ? ' Com a hipnose, ele não vai lembrar.' : ' Sem hipnose, vai lembrar de você.'),
         aoEscolher: () => {
+          registrarMordida(this.mundo);
           avisos.mostrar(beber(vampiro, 'viajantePouco', this.quemViaja).aviso);
           if (!vampiro.tem('hipnose')) vampiro.registro.push('testemunha:viajante');
           terminar();
@@ -136,6 +143,7 @@ export class Caca {
         texto: 'Beber até o fim',
         detalhe: ALIMENTOS.viajanteFim.descricao,
         aoEscolher: () => {
+          registrarMordida(this.mundo);
           avisos.mostrar(beber(vampiro, 'viajanteFim', this.quemViaja).aviso);
           vampiro.registro.push('desaparecido:viajante');
           terminar();

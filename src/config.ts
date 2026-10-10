@@ -59,3 +59,21 @@ export const SOL_FORTE = [10, 16]; // de 10h às 16h, fora de casa e com fome, o
 export const ENERGIA_POR_HORA_NO_SOL = 3;
 export const QUEIMADURA_DO_AMANHECER = { energia: 40, fome: 20 }; // pego pelo sol fora de casa
 export const CHANCE_DE_VIAJANTE = 0.35; // por noite
+
+// Suspeita da vila (Fase 5): de 0 a 100; em 100 a vila ataca
+export const SUSPEITA = {
+  aldeaoDesaparecido: 25,
+  viajanteDesaparecido: 8,
+  vitimaLembra: 12, // mordido sem hipnose
+  vistoMordendo: 20, // alguém acordado viu a mordida
+  sinalNotado: 3, // um aldeão notou palidez/olhos/presas
+  corpoEncontrado: 15, // corpo não escondido até o amanhecer
+  quedaPorDia: 3, // a vila esquece aos poucos
+  missaoConcluida: -4,
+  presente: -1,
+  doacaoNaIgreja: -6, // por doação
+  culparOLobo: -6, // conversa com a Dona Rosália (uma vez por dia)
+};
+export const DOACAO_NA_IGREJA = 50; // moedas
+export const RAIO_DE_VISAO = 6; // células: aldeão acordado a essa distância vê a mordida
+export const VELOCIDADE_CARREGANDO_CORPO = 0.6;

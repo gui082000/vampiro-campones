@@ -21,6 +21,9 @@ import { Caca } from '../sistemas/Caca';
 import { Vampirismo } from '../sistemas/Vampirismo';
 import { Vampiro } from '../estado/Vampiro';
 import { FimDeJogo } from '../interface/FimDeJogo';
+import { Suspeita } from '../estado/Suspeita';
+import { Evidencias } from '../sistemas/Evidencias';
+import { Vigilancia } from '../sistemas/Vigilancia';
 import { Escurecimento } from '../interface/Escurecimento';
 import { Hud } from '../interface/Hud';
 import { Menu } from '../interface/Menu';
@@ -67,6 +70,8 @@ export class CenaPrincipal extends Phaser.Scene {
   caca!: Caca;
   vampirismo!: Vampirismo;
   private fimDeJogo!: FimDeJogo;
+  private evidencias!: Evidencias;
+  private vigilancia!: Vigilancia;
 
   constructor() {
     super('CenaPrincipal');
@@ -102,6 +107,8 @@ export class CenaPrincipal extends Phaser.Scene {
       diario: new Diario(),
       vampiro: new Vampiro(),
       cofre: new Recipiente(TAMANHO_DEPOSITO),
+      suspeita: new Suspeita(),
+      testemunhas: () => [],
     };
 
     const inicio = mapa.centroDaCelula(INICIO_JOGADOR);
@@ -118,7 +125,7 @@ export class CenaPrincipal extends Phaser.Scene {
     this.interiores = new Interiores(this.mundo, this.transicao, this.jogador);
     this.physics.world.setBounds(0, 0, this.interiores.largura, this.interiores.altura);
     new Vila(this.mundo, this.interiores);
-    this.aldeoes = new Aldeoes(this.mundo, this.interiores, this.dialogo);
+    this.aldeoes = new Aldeoes(this.mundo, this.interiores, this.dialogo, this.jogador);
 
     this.fazenda = new Fazenda(this.mundo);
     this.coleta = new Coleta(this.mundo);
@@ -133,9 +140,11 @@ export class CenaPrincipal extends Phaser.Scene {
     this.caca = new Caca(this.mundo);
     this.fimDeJogo = new FimDeJogo(this, controle);
     this.vampirismo = new Vampirismo(this.mundo, this.jogador, this.interiores, this.fimDeJogo);
+    this.evidencias = new Evidencias(this.mundo, this.interiores, this.jogador);
+    this.vigilancia = new Vigilancia(this.mundo, this.jogador, this.interiores, this.fimDeJogo);
 
     this.escurecimento = new Escurecimento(this);
-    this.hud = new Hud(this, relogio, this.mundo.inventario, this.mundo.energia, this.mundo.interacao, this.mundo.vampiro);
+    this.hud = new Hud(this, relogio, this.mundo.inventario, this.mundo.energia, this.mundo.interacao, this.mundo.vampiro, this.mundo.suspeita);
 
     // Estação: tom do mapa e aviso no primeiro dia
     mapa.aplicarEstacao(relogio.estacao);
@@ -170,6 +179,8 @@ export class CenaPrincipal extends Phaser.Scene {
     this.aldeoes.atualizar(delta);
     this.caca.atualizar();
     this.vampirismo.atualizar();
+    this.evidencias.atualizar();
+    this.vigilancia.atualizar(delta);
     this.fimDeJogo.atualizar();
 
     this.escurecimento.atualizar(relogio.hora, this.vampirismo.visao);
