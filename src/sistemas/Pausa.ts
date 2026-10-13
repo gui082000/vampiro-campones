@@ -4,6 +4,7 @@ import type { Hud } from '../interface/Hud';
 import type { Menu } from '../interface/Menu';
 import type { Mundo } from './Mundo';
 import { armazenamento, existeSave, lerSave, type Salvar } from './Salvar';
+import { definirVolume } from '../util/Som';
 
 export const CONTROLES = [
   'WASD ou setas: andar',
@@ -89,7 +90,7 @@ export class Pausa {
       { texto: `Ajuda de teclas na tela: ${o.mostrarAjuda ? 'sim' : 'não'}`, aoEscolher: mudar(() => (o.mostrarAjuda = !o.mostrarAjuda)) },
       {
         texto: `Volume: ${o.volume}%`,
-        detalhe: 'E aumenta (volta a 0 depois de 100). O som chega na Fase 9.',
+        detalhe: 'E aumenta (volta a 0 depois de 100).',
         aoEscolher: mudar(() => (o.volume = o.volume >= 100 ? 0 : o.volume + 20)),
       },
       { texto: 'Voltar', aoEscolher: () => this.abrir() },
@@ -98,6 +99,7 @@ export class Pausa {
 
   private aplicarOpcoes() {
     this.hud.mostrarAjuda(this.opcoes.mostrarAjuda);
+    definirVolume(this.opcoes.volume);
     const escala = this.mundo.cena.scale;
     if (this.opcoes.telaCheia && !escala.isFullscreen) escala.startFullscreen();
     if (!this.opcoes.telaCheia && escala.isFullscreen) escala.stopFullscreen();

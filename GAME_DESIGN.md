@@ -326,6 +326,20 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
   - Um mastro aparece na frente da igreja das 9h às 22h. Participar dá 5 pontos de amizade com cada aldeão vivo, um presente e -5 de suspeita, uma vez por festa.
 - O tempo do dia e as festas feitas entram no save.
 
+**Fase 9 (2026-10-13):**
+- Som provisório feito por código (Web Audio), sem arquivos de áudio.
+  - O jogo chama `tocarSom('nome')` e os sons ficam em `dados/sons.ts`.
+  - Tocam em: usar (E), menus, diálogos, mordida, sino ao anoitecer, amanhecer, pista nova, suspeita subindo, poderes, festa, trovão e fim de jogo.
+  - O volume das opções controla todos.
+- Balanceamento: o cervo passou a tirar 35 de fome (antes, 25). Assim a rota pacífica (um cervo por noite) fica abaixo da fome alta.
+  - Só animais da fazenda não bastam.
+  - Sem comer nada, a fome vence em até 6 dias.
+  - Tudo isso é conferido em `testes/balanceamento.test.ts`.
+- Testes completos:
+  - Todos os roteiros do navegador (fases 2 a 8) rodam de novo e passam.
+  - Os das fases 2 a 6 ganharam um passo inicial que fecha a cena de abertura e fixa o tempo bom, porque a história e o clima já têm roteiros próprios.
+- Publicação: `vite.config.ts` com `base: './'`, para que `dist/` funcione em qualquer endereço. README com instruções.
+
 ## 9. Decisões pendentes
 
 - Mapa em imagem única: as árvores pintadas no mapa sempre ficam por baixo do Tomás. Resolver na arte final
@@ -361,5 +375,5 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
 - [x] **Fase 6 – Salvar/carregar,** tela inicial, pausa (Esc), opções, carregar no fim de jogo.
 - [x] **Fase 7 – História:** 3 atos com 9 cenas, 6 páginas do diário do tio, o Senhor da Colina e os finais.
 - [x] **Fase 8 – Clima,** estações, lua, poderes avançados, eventos aleatórios e festivais.
-- [ ] **Fase 9 – Polimento:** balanceamento, bugs, desempenho, som, textos, testes do jogo inteiro por simulação,
+- [x] **Fase 9 – Polimento:** balanceamento, bugs, desempenho, som, textos, testes do jogo inteiro por simulação,
   README, preparação para publicar.

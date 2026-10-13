@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { CAMADA } from '../arte/Camadas';
 import { ALTURA, LARGURA } from '../config';
 import type { Controle } from '../util/Controle';
+import { tocarSom } from '../util/Som';
 
 export interface OpcaoDeMenu {
   texto: string;
@@ -110,10 +111,17 @@ export class Menu {
       return;
     }
     const total = this.opcoes.length;
-    if (total > 0 && apertou(this.teclas.cima)) this.selecionada = (this.selecionada - 1 + total) % total;
-    if (total > 0 && apertou(this.teclas.baixo)) this.selecionada = (this.selecionada + 1) % total;
+    if (total > 0 && apertou(this.teclas.cima)) {
+      this.selecionada = (this.selecionada - 1 + total) % total;
+      tocarSom('menuMover');
+    }
+    if (total > 0 && apertou(this.teclas.baixo)) {
+      this.selecionada = (this.selecionada + 1) % total;
+      tocarSom('menuMover');
+    }
     if (apertou(this.teclas.escolher)) {
       const opcao = this.opcoes[this.selecionada];
+      if (opcao && opcao.ativa !== false) tocarSom('menuEscolher');
       if (opcao && opcao.ativa !== false && opcao.aoEscolher() === 'fechar') {
         this.fechar();
         return;

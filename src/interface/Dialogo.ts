@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { CAMADA } from '../arte/Camadas';
 import { ALTURA, LARGURA } from '../config';
 import type { Controle } from '../util/Controle';
+import { tocarSom } from '../util/Som';
 
 const ALTURA_CAIXA = 120;
 const TOPO = ALTURA - 110 - ALTURA_CAIXA;
@@ -65,6 +66,7 @@ export class Dialogo {
     if (!this.aberto) return;
     const apertou = this.teclas.map((t) => Phaser.Input.Keyboard.JustDown(t)).some(Boolean);
     if (!apertou) return;
+    tocarSom('texto');
     this.atual++;
     if (this.atual < this.falas.length) {
       this.texto.setText(this.falas[this.atual]);

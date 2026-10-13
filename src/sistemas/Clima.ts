@@ -10,6 +10,7 @@ import { somarSuspeita } from '../estado/Suspeita';
 import type { Fazenda } from './Fazenda';
 import { TAMANHO_CELULA } from './Mapa';
 import type { Mundo } from './Mundo';
+import { tocarSom } from '../util/Som';
 
 // O céu de cada dia: sorteia o tempo na virada do dia (a chuva rega a plantação),
 // às vezes acontece algo pequeno de manhã, e uma vez por estação há festa na vila.
@@ -61,6 +62,7 @@ export class Clima {
     const { relogio, clima, relacoes, suspeita, inventario, avisos } = this.mundo;
     const festival = festivalDoDia(relogio.dia)!;
     clima.festivaisFeitos.push(relogio.dia);
+    tocarSom('festa');
     for (const id of Object.keys(ALDEOES) as IdAldeao[]) if (relacoes.vivo(id)) relacoes.somar(id, CLIMA.festivalAmizade);
     inventario.adicionar(festival.presente.id, festival.presente.qtd);
     avisos.mostrar(festival.participar);

@@ -55,6 +55,7 @@ import { Relogio } from '../sistemas/Relogio';
 import { Controle } from '../util/Controle';
 import { Pausa } from '../sistemas/Pausa';
 import { Salvar, aplicarNoMundo, existeSave, lerSave } from '../sistemas/Salvar';
+import { tocarSom } from '../util/Som';
 
 // Monta a cena a partir das peças e liga a atualização de cada uma por quadro.
 // Cada mecânica nova ganha seu próprio arquivo em src/sistemas e é conectada aqui.
@@ -187,6 +188,9 @@ export class CenaPrincipal extends Phaser.Scene {
       this.mundo.avisos.mostrar(`Jogo carregado: ${save.salvoEm}`);
     }
     this.pausa = new Pausa(this.mundo, this.salvar, this.hud);
+
+    relogio.ouvir('anoiteceu', () => tocarSom('sino'));
+    relogio.ouvir('amanheceu', () => tocarSom('amanhecer'));
 
     // Estação: tom do mapa e aviso no primeiro dia
     mapa.aplicarEstacao(relogio.estacao);

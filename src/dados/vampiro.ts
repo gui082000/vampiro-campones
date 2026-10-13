@@ -1,7 +1,7 @@
 // Formas de se alimentar: quanto tiram de fome e quanta essência (para os poderes) dão.
 export const ALIMENTOS = {
   animalDaFazenda: { nome: 'animal da fazenda', fome: 15, essencia: 1, descricao: 'Seguro, mas alimenta pouco. O animal fica fraco e não produz amanhã.' },
-  cervo: { nome: 'cervo', fome: 25, essencia: 1, descricao: 'Só aparece na floresta à noite.' },
+  cervo: { nome: 'cervo', fome: 35, essencia: 1, descricao: 'Só aparece na floresta à noite.' },
   viajantePouco: { nome: 'viajante (um pouco)', fome: 30, essencia: 2, descricao: 'Ele segue viagem fraco.' },
   viajanteFim: { nome: 'viajante (até o fim)', fome: 60, essencia: 4, descricao: 'Ninguém da vila vai sentir falta. Quase ninguém.' },
   aldeaoPouco: { nome: 'aldeão (um pouco)', fome: 35, essencia: 2, descricao: 'Acorda fraco amanhã.' },

@@ -5,6 +5,7 @@ import type { Transicao } from '../interface/Transicao';
 import type { Interiores } from './Interiores';
 import type { Jogador } from './Jogador';
 import type { Mundo } from './Mundo';
+import { tocarSom } from '../util/Som';
 
 // Os poderes comprados no altar que se usam com uma tecla: V vira névoa (ninguém vê
 // o Tomás por uma hora) e B vira morcego (voa para um lugar conhecido).
@@ -31,7 +32,11 @@ export class PoderesAvancados {
     const nevoa = Phaser.Input.Keyboard.JustDown(this.teclaNevoa);
     const morcego = Phaser.Input.Keyboard.JustDown(this.teclaMorcego);
     if (!controle.livre) return;
-    if (nevoa) avisos.mostrar(virarNevoa(vampiro, relogio.eNoite).aviso);
+    if (nevoa) {
+      const r = virarNevoa(vampiro, relogio.eNoite);
+      if (r.mudou) tocarSom('poder');
+      avisos.mostrar(r.aviso);
+    }
     if (morcego) this.abrirVoo();
   }
 
@@ -46,6 +51,7 @@ export class PoderesAvancados {
       ...POUSOS_DO_MORCEGO.map((pouso) => ({
         texto: pouso.nome,
         aoEscolher: () => {
+          tocarSom('poder');
           avisos.mostrar(voarComoMorcego(vampiro).aviso);
           this.transicao.escurecerE(() => this.jogador.teleportar(pouso.coluna, pouso.linha, 'baixo'));
           return 'fechar' as const;

@@ -3,65 +3,220 @@
     "rotulo": "preparar atalhos do teste",
     "js": "(() => { const C = jogo.scene.getScene('CenaPrincipal'); window.C = C; window.irAte = (coluna, linha, lado) => { const lados = { cima: [0, 1], esquerda: [1, 0], direita: [-1, 0], baixo: [0, -1] }; const ordem = lado ? [lado] : ['cima', 'esquerda', 'direita', 'baixo']; for (const olhar of ordem) { const [dx, dy] = lados[olhar]; const pc = coluna + dx, pl = linha + dy; if (!lado && !C.mundo.mapa.livre(pc, pl)) continue; C.jogador.teleportar(pc, pl, olhar); return [pc, pl, olhar]; } return null; }; window.junto = (id) => { const a = C.aldeoes.naTela.find((a) => a.id === id); a.espera = 1e9; a.destino = { x: a.sprite.x, y: a.sprite.y + 14 }; const c = Math.floor(a.sprite.x / 32), l = Math.floor((a.sprite.y + 14) / 32); return irAte(c, l, 'cima'); }; window.ate = (h) => { const r = C.mundo.relogio; r.avancar(((h - r.hora + 24) % 24) * 12000); return r.horario; }; window.avisos = () => C.mundo.avisos.linhas.map((l) => l.texto.text).join(' | '); window.escolher = (trecho) => { const i = C.mundo.menu.opcoes.findIndex((o) => o.texto.includes(trecho)); C.mundo.menu.selecionada = i; return i; }; return 'ok'; })()"
   },
-  { "conferir": "C.mundo.suspeita.valor === 0", "rotulo": "a vila começa calma" },
-  { "foto": "01-hud-suspeita" },
-
-  { "js": "(C.mundo.suspeita.valor = 30, C.mundo.inventario.moedas = 500, ate(9))", "rotulo": "suspeita 30 e 9h (só no teste)" },
-  { "js": "irAte(158, 79, 'cima')" },
-  { "apertar": "e" },
-  { "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'igreja'", "maxQuadros": 200, "rotulo": "entrar na igreja" },
-  { "js": "(() => { const c = C.interiores.celulaNaSala('igreja', 4, 0); return irAte(c.coluna, c.linha, 'cima'); })()" },
-  { "apertar": "e" },
-  { "conferir": "C.mundo.inventario.moedas === 450 && C.mundo.suspeita.valor === 24", "rotulo": "doar 50 moedas na igreja acalma a vila" },
-  { "js": "(() => { const p = C.interiores.portaDe('igreja'); return irAte(p.coluna, p.linha, 'baixo'); })()" },
-  { "apertar": "e" },
-  { "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'fora'", "maxQuadros": 200, "rotulo": "sair da igreja" },
-
-  { "conferir": "C.aldeoes.salaDe('rosalia') === 'fora'", "rotulo": "às 9h a Rosália está na praça" },
-  { "js": "junto('rosalia')" },
-  { "apertar": "e" },
-  { "js": "escolher('lobo')", "rotulo": "opção de culpar o lobo" },
-  { "apertar": "e" },
-  { "apertar": "e" },
-  { "conferir": "C.mundo.suspeita.valor === 18", "rotulo": "a história do lobo baixou a suspeita" },
-
-  { "js": "(C.mundo.suspeita.valor = 85, ate(18.9))", "rotulo": "caça aberta, quase anoitecendo (só no teste)" },
-  { "esperar": 1500 },
-  { "conferir": "avisos().includes('armadilhas')", "rotulo": "na caça aberta o Orlando arma armadilhas" },
-  { "js": "irAte(140, 85, 'cima')" },
-  { "apertar": "e" },
-  { "esperar": 300 },
-  { "conferir": "C.interiores.local === 'fora' && avisos().includes('ninguém abre')", "rotulo": "portas da vila trancadas à noite" },
-  { "js": "(C.mundo.energia.atual = 100, C.jogador.teleportar(104, 15, 'baixo'), 'ok')", "rotulo": "perto de uma armadilha" },
-  { "js": "(C.jogador.teleportar(104, 16, 'baixo'), 'ok')", "rotulo": "pisando na armadilha" },
-  { "esperar": 100 },
-  { "conferir": "C.mundo.energia.atual === 75 && avisos().includes('armadilha')", "rotulo": "pisou na armadilha: perde energia" },
-  { "foto": "02-armadilha" },
-  { "esperar": 2200 },
-
-  { "js": "(C.mundo.suspeita.valor = 65, ate(21.5))", "rotulo": "investigação, 21h30 (só no teste)" },
-  { "esperar": 50 },
-  { "conferir": "C.aldeoes.salaDe('orlando') === 'fora'", "rotulo": "na investigação o Orlando faz ronda à noite" },
-  { "js": "(() => { const o = C.aldeoes.naTela.find((a) => a.id === 'orlando'); o.sprite.setPosition(118 * 32 + 16 + 64, 78 * 32 + 2); C.aldeoes.passoDaRonda = 1; return 'ok'; })()", "rotulo": "Orlando passando pelo acampamento" },
-  { "js": "irAte(118, 78, 'cima')", "rotulo": "no acampamento do viajante" },
-  { "apertar": "e" },
-  { "foto": "03-cuidado-testemunha" },
-  { "js": "escolher('até o fim')" },
-  { "apertar": "e" },
-  { "esperar": 50 },
-  { "conferir": "C.mundo.suspeita.valor >= 65 + 20 + 8 - 1", "rotulo": "visto pelo Orlando: a suspeita disparou" },
-  { "conferir": "C.mundo.suspeita.corpos.length === 1", "rotulo": "ficou um corpo no acampamento" },
-  { "foto": "04-corpo" },
-  { "js": "(C.mundo.suspeita.valor = 40, 'ok')", "rotulo": "baixando a suspeita para continuar (só no teste)" },
-  { "apertar": "e" },
-  { "conferir": "C.mundo.suspeita.carregando !== null && C.jogador.multiplicadorDeVelocidade < 1.35", "rotulo": "carregando o corpo: anda mais devagar" },
-  { "js": "irAte(66, 20, 'cima')", "rotulo": "na fogueira" },
-  { "apertar": "e" },
-  { "conferir": "C.mundo.suspeita.corpos.length === 0 && C.mundo.suspeita.carregando === null", "rotulo": "queimou o corpo: sem evidência" },
-  { "foto": "05-fogueira" },
-
-  { "js": "(C.mundo.suspeita.valor = 95, C.mundo.vampiro.registro.push('visto:helena'), 'ok')", "rotulo": "mais alguém viu tudo (só no teste)" },
-  { "esperar": 100 },
-  { "conferir": "C.fimDeJogo.estaAberta && C.mundo.suspeita.linchado", "rotulo": "com a suspeita em 100, a vila lincha" },
-  { "foto": "06-linchado" }
+  {
+    "rotulo": "sem história e com tempo bom (só no teste; a história é testada na fase 7 e o clima na 8)",
+    "js": "(() => { const C = jogo.scene.getScene('CenaPrincipal'); C.historia.atualizar = () => {}; C.clima.aleatorio = () => 0.35; return 'ok'; })()"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "!jogo.scene.getScene('CenaPrincipal').dialogo.estaAberto",
+    "rotulo": "cena de abertura fechada"
+  },
+  {
+    "conferir": "C.mundo.suspeita.valor === 0",
+    "rotulo": "a vila começa calma"
+  },
+  {
+    "foto": "01-hud-suspeita"
+  },
+  {
+    "js": "(C.mundo.suspeita.valor = 30, C.mundo.inventario.moedas = 500, ate(9))",
+    "rotulo": "suspeita 30 e 9h (só no teste)"
+  },
+  {
+    "js": "irAte(158, 79, 'cima')"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'igreja'",
+    "maxQuadros": 200,
+    "rotulo": "entrar na igreja"
+  },
+  {
+    "js": "(() => { const c = C.interiores.celulaNaSala('igreja', 4, 0); return irAte(c.coluna, c.linha, 'cima'); })()"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "C.mundo.inventario.moedas === 450 && C.mundo.suspeita.valor === 24",
+    "rotulo": "doar 50 moedas na igreja acalma a vila"
+  },
+  {
+    "js": "(() => { const p = C.interiores.portaDe('igreja'); return irAte(p.coluna, p.linha, 'baixo'); })()"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'fora'",
+    "maxQuadros": 200,
+    "rotulo": "sair da igreja"
+  },
+  {
+    "conferir": "C.aldeoes.salaDe('rosalia') === 'fora'",
+    "rotulo": "às 9h a Rosália está na praça"
+  },
+  {
+    "js": "junto('rosalia')"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "js": "escolher('lobo')",
+    "rotulo": "opção de culpar o lobo"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "C.mundo.suspeita.valor === 18",
+    "rotulo": "a história do lobo baixou a suspeita"
+  },
+  {
+    "js": "(C.mundo.suspeita.valor = 85, ate(18.9))",
+    "rotulo": "caça aberta, quase anoitecendo (só no teste)"
+  },
+  {
+    "esperar": 1500
+  },
+  {
+    "conferir": "avisos().includes('armadilhas')",
+    "rotulo": "na caça aberta o Orlando arma armadilhas"
+  },
+  {
+    "js": "irAte(140, 85, 'cima')"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "esperar": 300
+  },
+  {
+    "conferir": "C.interiores.local === 'fora' && avisos().includes('ninguém abre')",
+    "rotulo": "portas da vila trancadas à noite"
+  },
+  {
+    "js": "(C.mundo.energia.atual = 100, C.jogador.teleportar(104, 15, 'baixo'), 'ok')",
+    "rotulo": "perto de uma armadilha"
+  },
+  {
+    "js": "(C.jogador.teleportar(104, 16, 'baixo'), 'ok')",
+    "rotulo": "pisando na armadilha"
+  },
+  {
+    "esperar": 100
+  },
+  {
+    "conferir": "C.mundo.energia.atual === 75 && avisos().includes('armadilha')",
+    "rotulo": "pisou na armadilha: perde energia"
+  },
+  {
+    "foto": "02-armadilha"
+  },
+  {
+    "esperar": 2200
+  },
+  {
+    "js": "(C.mundo.suspeita.valor = 65, ate(21.5))",
+    "rotulo": "investigação, 21h30 (só no teste)"
+  },
+  {
+    "esperar": 50
+  },
+  {
+    "conferir": "C.aldeoes.salaDe('orlando') === 'fora'",
+    "rotulo": "na investigação o Orlando faz ronda à noite"
+  },
+  {
+    "js": "(() => { const o = C.aldeoes.naTela.find((a) => a.id === 'orlando'); o.sprite.setPosition(118 * 32 + 16 + 64, 78 * 32 + 2); C.aldeoes.passoDaRonda = 1; return 'ok'; })()",
+    "rotulo": "Orlando passando pelo acampamento"
+  },
+  {
+    "js": "irAte(118, 78, 'cima')",
+    "rotulo": "no acampamento do viajante"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "foto": "03-cuidado-testemunha"
+  },
+  {
+    "js": "escolher('até o fim')"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "esperar": 50
+  },
+  {
+    "conferir": "C.mundo.suspeita.valor >= 65 + 20 + 8 - 1",
+    "rotulo": "visto pelo Orlando: a suspeita disparou"
+  },
+  {
+    "conferir": "C.mundo.suspeita.corpos.length === 1",
+    "rotulo": "ficou um corpo no acampamento"
+  },
+  {
+    "foto": "04-corpo"
+  },
+  {
+    "js": "(C.mundo.suspeita.valor = 40, 'ok')",
+    "rotulo": "baixando a suspeita para continuar (só no teste)"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "C.mundo.suspeita.carregando !== null && C.jogador.multiplicadorDeVelocidade < 1.35",
+    "rotulo": "carregando o corpo: anda mais devagar"
+  },
+  {
+    "js": "irAte(66, 20, 'cima')",
+    "rotulo": "na fogueira"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "C.mundo.suspeita.corpos.length === 0 && C.mundo.suspeita.carregando === null",
+    "rotulo": "queimou o corpo: sem evidência"
+  },
+  {
+    "foto": "05-fogueira"
+  },
+  {
+    "js": "(C.mundo.suspeita.valor = 95, C.mundo.vampiro.registro.push('visto:helena'), 'ok')",
+    "rotulo": "mais alguém viu tudo (só no teste)"
+  },
+  {
+    "esperar": 100
+  },
+  {
+    "conferir": "C.fimDeJogo.estaAberta && C.mundo.suspeita.linchado",
+    "rotulo": "com a suspeita em 100, a vila lincha"
+  },
+  {
+    "foto": "06-linchado"
+  }
 ]

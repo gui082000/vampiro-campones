@@ -3,91 +3,300 @@
     "rotulo": "preparar atalhos do teste",
     "js": "(() => { const C = jogo.scene.getScene('CenaPrincipal'); window.C = C; window.irAte = (coluna, linha, lado) => { const lados = { cima: [0, 1], esquerda: [1, 0], direita: [-1, 0], baixo: [0, -1] }; const ordem = lado ? [lado] : ['cima', 'esquerda', 'direita', 'baixo']; for (const olhar of ordem) { const [dx, dy] = lados[olhar]; const pc = coluna + dx, pl = linha + dy; if (!lado && !C.mundo.mapa.livre(pc, pl)) continue; C.jogador.teleportar(pc, pl, olhar); return [pc, pl, olhar]; } return null; }; window.naSala = (id, coluna, linha, lado) => { const k = C.interiores.cantos.get(id); return irAte(k.coluna + 1 + coluna, k.linha + 1 + linha, lado); }; window.portaDaSala = (id) => { const p = C.interiores.portaDe(id); return irAte(p.coluna, p.linha, 'baixo'); }; window.ultimoAviso = () => C.mundo.avisos.linhas.map((l) => l.texto.text).join(' | '); return 'ok'; })()"
   },
-  { "conferir": "C.mundo.relogio.horario === '07:00'", "rotulo": "começa às 7h" },
-  { "esperar": 12000 },
-  { "conferir": "C.mundo.relogio.horario === '08:00'", "rotulo": "1 hora do jogo agora dura 12 segundos" },
-  { "foto": "01-fazenda" },
-
-  { "andar": "a", "ate": 102.0 },
-  { "andar": "s", "ate": 25.5 },
-  { "andar": "a", "ate": 97.5 },
-  { "andar": "w", "ate": 24.5 },
-  { "apertar": "1" },
-  { "apertar": "e" },
-  { "apertar": "5" },
-  { "apertar": "e" },
-  { "apertar": "2" },
-  { "apertar": "e" },
-  { "conferir": "C.fazenda.lavoura.canteiros['97,23']?.plantio?.planta === 'trigo' && C.fazenda.lavoura.canteiros['97,23'].regado", "rotulo": "plantou e regou trigo" },
-
-  { "js": "irAte(140, 85, 'cima')", "rotulo": "na porta da loja da vila" },
-  { "esperar": 50 },
-  { "foto": "02-vila" },
-  { "conferir": "C.mundo.interacao.dica === 'Loja · E: entrar'", "rotulo": "dica de entrar na loja" },
-  { "apertar": "e" },
-  { "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'loja'", "maxQuadros": 200, "rotulo": "entrar na loja" },
-  { "js": "naSala('loja', 3, 1, 'cima')", "rotulo": "na frente do balcão" },
-  { "apertar": "e" },
-  { "conferir": "C.mundo.menu.estaAberto === true", "rotulo": "balcão abre as sementes da estação" },
-  { "foto": "03-loja-por-dentro" },
-  { "apertar": "s" },
-  { "apertar": "e" },
-  { "conferir": "C.mundo.inventario.quantidade('sementeBatata') === 1", "rotulo": "comprou semente de batata na loja" },
-  { "apertar": "esc" },
-  { "js": "portaDaSala('loja')", "rotulo": "na porta de saída" },
-  { "apertar": "e" },
-  { "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'fora'", "maxQuadros": 200, "rotulo": "sair da loja" },
-  { "conferir": "C.jogador.celulaDosPes.coluna === 140 && C.jogador.celulaDosPes.linha === 86", "rotulo": "saiu na frente da porta da loja" },
-
-  { "js": "irAte(158, 79, 'cima')", "rotulo": "na porta da igreja" },
-  { "apertar": "e" },
-  { "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'igreja'", "maxQuadros": 200, "rotulo": "entrar na igreja" },
-  { "js": "naSala('igreja', 9, 0, 'cima')", "rotulo": "na frente do livro de registros" },
-  { "apertar": "e" },
-  { "conferir": "ultimoAviso().includes('desaparecidos')", "rotulo": "o livro da igreja fala dos desaparecidos" },
-  { "foto": "04-igreja-por-dentro" },
-  { "js": "portaDaSala('igreja')" },
-  { "apertar": "e" },
-  { "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'fora'", "maxQuadros": 200, "rotulo": "sair da igreja" },
-
+  {
+    "rotulo": "sem história e com tempo bom (só no teste; a história é testada na fase 7 e o clima na 8)",
+    "js": "(() => { const C = jogo.scene.getScene('CenaPrincipal'); C.historia.atualizar = () => {}; C.clima.aleatorio = () => 0.35; return 'ok'; })()"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "!jogo.scene.getScene('CenaPrincipal').dialogo.estaAberto",
+    "rotulo": "cena de abertura fechada"
+  },
+  {
+    "conferir": "C.mundo.relogio.horario === '07:00'",
+    "rotulo": "começa às 7h"
+  },
+  {
+    "esperar": 12000
+  },
+  {
+    "conferir": "C.mundo.relogio.horario === '08:00'",
+    "rotulo": "1 hora do jogo agora dura 12 segundos"
+  },
+  {
+    "foto": "01-fazenda"
+  },
+  {
+    "andar": "a",
+    "ate": 102
+  },
+  {
+    "andar": "s",
+    "ate": 25.5
+  },
+  {
+    "andar": "a",
+    "ate": 97.5
+  },
+  {
+    "andar": "w",
+    "ate": 24.5
+  },
+  {
+    "apertar": "1"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "5"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "2"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "C.fazenda.lavoura.canteiros['97,23']?.plantio?.planta === 'trigo' && C.fazenda.lavoura.canteiros['97,23'].regado",
+    "rotulo": "plantou e regou trigo"
+  },
+  {
+    "js": "irAte(140, 85, 'cima')",
+    "rotulo": "na porta da loja da vila"
+  },
+  {
+    "esperar": 50
+  },
+  {
+    "foto": "02-vila"
+  },
+  {
+    "conferir": "C.mundo.interacao.dica === 'Loja · E: entrar'",
+    "rotulo": "dica de entrar na loja"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'loja'",
+    "maxQuadros": 200,
+    "rotulo": "entrar na loja"
+  },
+  {
+    "js": "naSala('loja', 3, 1, 'cima')",
+    "rotulo": "na frente do balcão"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "C.mundo.menu.estaAberto === true",
+    "rotulo": "balcão abre as sementes da estação"
+  },
+  {
+    "foto": "03-loja-por-dentro"
+  },
+  {
+    "apertar": "s"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "C.mundo.inventario.quantidade('sementeBatata') === 1",
+    "rotulo": "comprou semente de batata na loja"
+  },
+  {
+    "apertar": "esc"
+  },
+  {
+    "js": "portaDaSala('loja')",
+    "rotulo": "na porta de saída"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'fora'",
+    "maxQuadros": 200,
+    "rotulo": "sair da loja"
+  },
+  {
+    "conferir": "C.jogador.celulaDosPes.coluna === 140 && C.jogador.celulaDosPes.linha === 86",
+    "rotulo": "saiu na frente da porta da loja"
+  },
+  {
+    "js": "irAte(158, 79, 'cima')",
+    "rotulo": "na porta da igreja"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'igreja'",
+    "maxQuadros": 200,
+    "rotulo": "entrar na igreja"
+  },
+  {
+    "js": "naSala('igreja', 9, 0, 'cima')",
+    "rotulo": "na frente do livro de registros"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "ultimoAviso().includes('desaparecidos')",
+    "rotulo": "o livro da igreja fala dos desaparecidos"
+  },
+  {
+    "foto": "04-igreja-por-dentro"
+  },
+  {
+    "js": "portaDaSala('igreja')"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'fora'",
+    "maxQuadros": 200,
+    "rotulo": "sair da igreja"
+  },
   {
     "js": "(() => { for (let l = 101; l < 108; l += 2) for (let c = 141; c < 148; c += 2) if (C.mundo.mapa.livre(c, l)) return irAte(c, l, 'cima'); return null; })()",
     "rotulo": "diante da primeira lápide"
   },
-  { "apertar": "e" },
-  { "conferir": "ultimoAviso().includes('Joaquim')", "rotulo": "a lápide do tio" },
-  { "foto": "05-cemiterio" },
-
-  { "js": "irAte(72, 17, 'cima')", "rotulo": "no portão da colina" },
-  { "apertar": "e" },
-  { "conferir": "ultimoAviso().includes('correntes') && C.interiores.local === 'fora'", "rotulo": "a colina está trancada" },
-  { "foto": "06-colina" },
-
-  { "js": "irAte(170, 19, 'cima')", "rotulo": "na porta da cabana do caçador" },
-  { "esperar": 50 },
-  { "foto": "07-floresta" },
-  { "conferir": "C.coleta.nos.filter((n) => n.coluna >= 158 && n.linha <= 31 && n.linha >= 20).length >= 10", "rotulo": "a floresta tem recursos para coletar" },
-
-  { "js": "irAte(106, 13, 'cima')", "rotulo": "na porta de casa" },
-  { "apertar": "e" },
-  { "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'casaDoTomas'", "maxQuadros": 200, "rotulo": "entrar em casa" },
-  { "js": "naSala('casaDoTomas', 7, 4, 'baixo')", "rotulo": "sobre o alçapão" },
-  { "apertar": "e" },
-  { "conferir": "ultimoAviso().includes('arranha')", "rotulo": "o alçapão do porão está trancado" },
-  { "js": "(C.mundo.construcoes.feitas.deposito = true, 'ok')", "rotulo": "depósito pronto (só no teste)" },
-  { "js": "naSala('casaDoTomas', 3, 0, 'cima')" },
-  { "apertar": "e" },
-  { "conferir": "C.telaDoInventario.estaAberta === true", "rotulo": "o baú abre o depósito" },
-  { "apertar": "esc" },
-  { "js": "naSala('casaDoTomas', 0, 1, 'cima')", "rotulo": "ao lado da cama" },
-  { "foto": "08-casa-por-dentro" },
-  { "apertar": "e" },
-  { "conferir": "C.mundo.menu.estaAberto === true", "rotulo": "a cama pergunta se quer dormir" },
-  { "apertar": "e" },
-  { "esperarAte": "!C.transicao.emAndamento && C.mundo.relogio.dia === 2", "maxQuadros": 300, "rotulo": "acordar no dia 2" },
-  { "conferir": "C.fazenda.lavoura.canteiros['97,23'].plantio.horas > 20", "rotulo": "o trigo cresceu durante a noite" },
-  { "conferir": "C.interiores.local === 'casaDoTomas'", "rotulo": "acordou dentro de casa" },
-  { "js": "(() => { const r = C.mundo.relogio; r.avancar((21 - r.hora) * 12000); return r.horario; })()", "rotulo": "adiantando até 21h (só no teste)" },
-  { "esperar": 200 },
-  { "foto": "09-casa-a-noite" }
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "ultimoAviso().includes('Joaquim')",
+    "rotulo": "a lápide do tio"
+  },
+  {
+    "foto": "05-cemiterio"
+  },
+  {
+    "js": "irAte(72, 17, 'cima')",
+    "rotulo": "no portão da colina"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "ultimoAviso().includes('correntes') && C.interiores.local === 'fora'",
+    "rotulo": "a colina está trancada"
+  },
+  {
+    "foto": "06-colina"
+  },
+  {
+    "js": "irAte(170, 19, 'cima')",
+    "rotulo": "na porta da cabana do caçador"
+  },
+  {
+    "esperar": 50
+  },
+  {
+    "foto": "07-floresta"
+  },
+  {
+    "conferir": "C.coleta.nos.filter((n) => n.coluna >= 158 && n.linha <= 31 && n.linha >= 20).length >= 10",
+    "rotulo": "a floresta tem recursos para coletar"
+  },
+  {
+    "js": "irAte(106, 13, 'cima')",
+    "rotulo": "na porta de casa"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'casaDoTomas'",
+    "maxQuadros": 200,
+    "rotulo": "entrar em casa"
+  },
+  {
+    "js": "naSala('casaDoTomas', 7, 4, 'baixo')",
+    "rotulo": "sobre o alçapão"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "ultimoAviso().includes('arranha')",
+    "rotulo": "o alçapão do porão está trancado"
+  },
+  {
+    "js": "(C.mundo.construcoes.feitas.deposito = true, 'ok')",
+    "rotulo": "depósito pronto (só no teste)"
+  },
+  {
+    "js": "naSala('casaDoTomas', 3, 0, 'cima')"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "C.telaDoInventario.estaAberta === true",
+    "rotulo": "o baú abre o depósito"
+  },
+  {
+    "apertar": "esc"
+  },
+  {
+    "js": "naSala('casaDoTomas', 0, 1, 'cima')",
+    "rotulo": "ao lado da cama"
+  },
+  {
+    "foto": "08-casa-por-dentro"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "C.mundo.menu.estaAberto === true",
+    "rotulo": "a cama pergunta se quer dormir"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "esperarAte": "!C.transicao.emAndamento && C.mundo.relogio.dia === 2",
+    "maxQuadros": 300,
+    "rotulo": "acordar no dia 2"
+  },
+  {
+    "conferir": "C.fazenda.lavoura.canteiros['97,23'].plantio.horas > 20",
+    "rotulo": "o trigo cresceu durante a noite"
+  },
+  {
+    "conferir": "C.interiores.local === 'casaDoTomas'",
+    "rotulo": "acordou dentro de casa"
+  },
+  {
+    "js": "(() => { const r = C.mundo.relogio; r.avancar((21 - r.hora) * 12000); return r.horario; })()",
+    "rotulo": "adiantando até 21h (só no teste)"
+  },
+  {
+    "esperar": 200
+  },
+  {
+    "foto": "09-casa-a-noite"
+  }
 ]

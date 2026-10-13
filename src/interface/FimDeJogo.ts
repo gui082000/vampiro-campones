@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { CAMADA } from '../arte/Camadas';
 import { ALTURA, LARGURA } from '../config';
 import type { Controle } from '../util/Controle';
+import { tocarSom } from '../util/Som';
 
 // Tela de fim de jogo (por enquanto só o fim pela fome; os 5 finais chegam na Fase 7).
 // C carrega o último save; E recomeça do zero.
@@ -29,6 +30,7 @@ export class FimDeJogo {
     if (this.aberta) return;
     this.aberta = true;
     this.controle.ocupar('fim');
+    tocarSom('fim');
     const fixo = <T extends Phaser.GameObjects.Components.ScrollFactor & Phaser.GameObjects.Components.Depth>(o: T) =>
       o.setScrollFactor(0).setDepth(CAMADA.transicao + 1);
     fixo(this.scene.add.rectangle(0, 0, LARGURA, ALTURA, 0x050000, 0.94).setOrigin(0));

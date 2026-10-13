@@ -6,7 +6,7 @@ const CHAVE = 'sangue-na-terra:opcoes';
 export interface Opcoes {
   telaCheia: boolean;
   mostrarAjuda: boolean; // as teclas no canto da tela
-  volume: number; // 0 a 100 (o som chega na Fase 9)
+  volume: number; // 0 a 100
 }
 
 export const OPCOES_PADRAO: Opcoes = { telaCheia: false, mostrarAjuda: true, volume: 80 };

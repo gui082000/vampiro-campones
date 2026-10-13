@@ -3,54 +3,180 @@
     "rotulo": "preparar atalhos do teste",
     "js": "(() => { const C = jogo.scene.getScene('CenaPrincipal'); window.C = C; window.irAte = (coluna, linha, lado) => { const lados = { cima: [0, 1], esquerda: [1, 0], direita: [-1, 0], baixo: [0, -1] }; const ordem = lado ? [lado] : ['cima', 'esquerda', 'direita', 'baixo']; for (const olhar of ordem) { const [dx, dy] = lados[olhar]; const pc = coluna + dx, pl = linha + dy; if (!lado && !C.mundo.mapa.livre(pc, pl)) continue; C.jogador.teleportar(pc, pl, olhar); return [pc, pl, olhar]; } return null; }; window.junto = (id) => { const a = C.aldeoes.naTela.find((a) => a.id === id); a.espera = 1e9; a.destino = { x: a.sprite.x, y: a.sprite.y + 14 }; const c = Math.floor(a.sprite.x / 32), l = Math.floor((a.sprite.y + 14) / 32); return irAte(c, l, 'cima'); }; window.ultimoAviso = () => C.mundo.avisos.linhas.map((l) => l.texto.text).join(' | '); return 'ok'; })()"
   },
-  { "conferir": "C.aldeoes.salaDe('bento') === 'fora'", "rotulo": "às 7h o Bento está fora de casa" },
-  { "js": "junto('bento')", "rotulo": "junto do Bento" },
-  { "esperar": 50 },
-  { "conferir": "C.mundo.interacao.dica === 'Bento · E: conversar'", "rotulo": "dica de conversar" },
-  { "foto": "01-bento" },
-  { "apertar": "e" },
-  { "conferir": "C.mundo.menu.estaAberto", "rotulo": "abre as opções da conversa" },
-  { "apertar": "e" },
-  { "conferir": "C.dialogo.estaAberto", "rotulo": "caixa de diálogo com a fala" },
-  { "foto": "02-dialogo" },
-  { "apertar": "e" },
-  { "conferir": "!C.dialogo.estaAberto && C.mundo.relacoes.porAldeao.bento.pontos > 0", "rotulo": "conversar aumentou a amizade" },
-
-  { "apertar": "e" },
-  { "apertar": "s" },
-  { "apertar": "e" },
-  { "apertar": "e" },
-  { "conferir": "C.mundo.missoes.situacao.bento1 === 'ativa'", "rotulo": "aceitou o pedido do Bento" },
-  { "js": "(C.mundo.inventario.adicionar('trigo', 5), 'ok')", "rotulo": "dando 5 trigos (só no teste)" },
-  { "apertar": "e" },
-  { "apertar": "s" },
-  { "apertar": "e" },
-  { "apertar": "e" },
-  { "conferir": "C.mundo.missoes.situacao.bento1 === 'concluida'", "rotulo": "entregou e concluiu a missão" },
-
-  { "apertar": "j" },
-  { "conferir": "C.telaDoDiario.estaAberta", "rotulo": "J abre o diário" },
-  { "foto": "03-diario-missoes" },
-  { "apertar": "d" },
-  { "foto": "04-diario-aldeoes" },
-  { "apertar": "esc" },
-
-  { "js": "(() => { const r = C.mundo.relogio; r.avancar((9 - r.hora) * 12000); return r.horario; })()", "rotulo": "adiantando até 9h (só no teste)" },
-  { "esperar": 50 },
-  { "js": "irAte(140, 85, 'cima')" },
-  { "apertar": "e" },
-  { "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'loja'", "maxQuadros": 200, "rotulo": "entrar na loja" },
-  { "conferir": "C.aldeoes.salaDe('cida') === 'loja'", "rotulo": "Dona Cida está na loja" },
-  { "js": "(() => { const c = C.interiores.celulaNaSala('loja', 2, 1); return irAte(c.coluna, c.linha, 'cima'); })()" },
-  { "apertar": "e" },
-  { "conferir": "C.mundo.menu.estaAberto", "rotulo": "loja aberta" },
-  { "foto": "05-loja" },
-  { "apertar": "esc" },
-
-  { "js": "(() => { const r = C.mundo.relogio; r.avancar((20.5 - r.hora) * 12000); return r.horario; })()", "rotulo": "adiantando até 20h30 (só no teste)" },
-  { "esperar": 50 },
-  { "conferir": "C.aldeoes.salaDe('bento') === 'taverna' && C.aldeoes.salaDe('orlando') === 'taverna'", "rotulo": "de noite Bento e Orlando estão na taverna" },
-  { "js": "(() => { const c = C.interiores.celulaNaSala('taverna', 4, 4); C.jogador.teleportar(c.coluna, c.linha, 'cima'); C.interiores.prenderCamera('taverna'); return 'ok'; })()", "rotulo": "dentro da taverna" },
-  { "esperar": 100 },
-  { "foto": "06-taverna-a-noite" }
+  {
+    "rotulo": "sem história e com tempo bom (só no teste; a história é testada na fase 7 e o clima na 8)",
+    "js": "(() => { const C = jogo.scene.getScene('CenaPrincipal'); C.historia.atualizar = () => {}; C.clima.aleatorio = () => 0.35; return 'ok'; })()"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "!jogo.scene.getScene('CenaPrincipal').dialogo.estaAberto",
+    "rotulo": "cena de abertura fechada"
+  },
+  {
+    "conferir": "C.aldeoes.salaDe('bento') === 'fora'",
+    "rotulo": "às 7h o Bento está fora de casa"
+  },
+  {
+    "js": "junto('bento')",
+    "rotulo": "junto do Bento"
+  },
+  {
+    "esperar": 50
+  },
+  {
+    "conferir": "C.mundo.interacao.dica === 'Bento · E: conversar'",
+    "rotulo": "dica de conversar"
+  },
+  {
+    "foto": "01-bento"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "C.mundo.menu.estaAberto",
+    "rotulo": "abre as opções da conversa"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "C.dialogo.estaAberto",
+    "rotulo": "caixa de diálogo com a fala"
+  },
+  {
+    "foto": "02-dialogo"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "!C.dialogo.estaAberto && C.mundo.relacoes.porAldeao.bento.pontos > 0",
+    "rotulo": "conversar aumentou a amizade"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "s"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "C.mundo.missoes.situacao.bento1 === 'ativa'",
+    "rotulo": "aceitou o pedido do Bento"
+  },
+  {
+    "js": "(C.mundo.inventario.adicionar('trigo', 5), 'ok')",
+    "rotulo": "dando 5 trigos (só no teste)"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "s"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "C.mundo.missoes.situacao.bento1 === 'concluida'",
+    "rotulo": "entregou e concluiu a missão"
+  },
+  {
+    "apertar": "j"
+  },
+  {
+    "conferir": "C.telaDoDiario.estaAberta",
+    "rotulo": "J abre o diário"
+  },
+  {
+    "foto": "03-diario-missoes"
+  },
+  {
+    "apertar": "d"
+  },
+  {
+    "foto": "04-diario-aldeoes"
+  },
+  {
+    "apertar": "esc"
+  },
+  {
+    "js": "(() => { const r = C.mundo.relogio; r.avancar((9 - r.hora) * 12000); return r.horario; })()",
+    "rotulo": "adiantando até 9h (só no teste)"
+  },
+  {
+    "esperar": 50
+  },
+  {
+    "js": "irAte(140, 85, 'cima')"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "esperarAte": "!C.transicao.emAndamento && C.interiores.local === 'loja'",
+    "maxQuadros": 200,
+    "rotulo": "entrar na loja"
+  },
+  {
+    "conferir": "C.aldeoes.salaDe('cida') === 'loja'",
+    "rotulo": "Dona Cida está na loja"
+  },
+  {
+    "js": "(() => { const c = C.interiores.celulaNaSala('loja', 2, 1); return irAte(c.coluna, c.linha, 'cima'); })()"
+  },
+  {
+    "apertar": "e"
+  },
+  {
+    "conferir": "C.mundo.menu.estaAberto",
+    "rotulo": "loja aberta"
+  },
+  {
+    "foto": "05-loja"
+  },
+  {
+    "apertar": "esc"
+  },
+  {
+    "js": "(() => { const r = C.mundo.relogio; r.avancar((20.5 - r.hora) * 12000); return r.horario; })()",
+    "rotulo": "adiantando até 20h30 (só no teste)"
+  },
+  {
+    "esperar": 50
+  },
+  {
+    "conferir": "C.aldeoes.salaDe('bento') === 'taverna' && C.aldeoes.salaDe('orlando') === 'taverna'",
+    "rotulo": "de noite Bento e Orlando estão na taverna"
+  },
+  {
+    "js": "(() => { const c = C.interiores.celulaNaSala('taverna', 4, 4); C.jogador.teleportar(c.coluna, c.linha, 'cima'); C.interiores.prenderCamera('taverna'); return 'ok'; })()",
+    "rotulo": "dentro da taverna"
+  },
+  {
+    "esperar": 100
+  },
+  {
+    "foto": "06-taverna-a-noite"
+  }
 ]

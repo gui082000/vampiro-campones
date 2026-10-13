@@ -18,6 +18,7 @@ import type { Controle } from '../util/Controle';
 import type { Interacao } from './Interacao';
 import type { Mapa } from './Mapa';
 import type { Relogio } from './Relogio';
+import { tocarSom } from '../util/Som';
 
 // O que os sistemas do jogo compartilham. É montado uma vez na CenaPrincipal e
 // entregue a cada sistema, em vez de uma lista enorme de parâmetros.
@@ -50,10 +51,13 @@ export interface Mundo {
 
 // Chamado em toda mordida: quem estiver acordado e perto viu tudo
 export function registrarMordida(mundo: Mundo) {
+  tocarSom('mordida');
   for (const id of mundo.testemunhas()) mundo.vampiro.registro.push(`visto:${id}`);
 }
 
 // Anota uma pista no diário e avisa, só na primeira vez
 export function anotarPista(mundo: Mundo, pista: string) {
-  if (mundo.diario.anotar(pista)) mundo.avisos.mostrar('Pista anotada no diário (J)');
+  if (!mundo.diario.anotar(pista)) return;
+  tocarSom('pista');
+  mundo.avisos.mostrar('Pista anotada no diário (J)');
 }

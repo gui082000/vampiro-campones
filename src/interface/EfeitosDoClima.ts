@@ -2,6 +2,7 @@ import type Phaser from 'phaser';
 import { CAMADA } from '../arte/Camadas';
 import { ALTURA, LARGURA } from '../config';
 import type { Tempo } from '../dados/clima';
+import { tocarSom } from '../util/Som';
 
 const GOTAS = 90;
 const COR_CHUVA = 0xa0b8d8;
@@ -50,6 +51,7 @@ export class EfeitosDoClima {
       this.proximoRaio -= deltaMs;
       if (this.proximoRaio <= 0) {
         this.clarao.setAlpha(0.6);
+        tocarSom('trovao');
         this.proximoRaio = 5000 + Math.random() * 8000;
       }
     }

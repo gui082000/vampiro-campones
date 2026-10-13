@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { CAMADA } from '../arte/Camadas';
 import type { Controle } from '../util/Controle';
 import { TAMANHO_CELULA } from './Mapa';
+import { tocarSom } from '../util/Som';
 
 const COR_DESTAQUE = 0xffee55;
 const MARGEM = 4; // pixels de folga em volta de cada coisa
@@ -63,7 +64,10 @@ export class Interacao {
       return;
     }
     this.cursor.setVisible(true).setPosition(alvo.x, alvo.y).setSize(alvo.largura, alvo.altura);
-    if (apertouE) alvo.acao();
+    if (apertouE) {
+      tocarSom('usar');
+      alvo.acao();
+    }
     this.dica = this.controle.livre ? alvo.dica() : '';
   }
 

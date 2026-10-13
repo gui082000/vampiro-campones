@@ -7,6 +7,7 @@ import type { IdFinal } from '../dados/historia';
 import type { Interiores } from './Interiores';
 import type { Jogador } from './Jogador';
 import type { Mundo } from './Mundo';
+import { tocarSom } from '../util/Som';
 
 // A vila reage ao que o Tomás faz: transforma o registro da noite em suspeita, esquece
 // aos poucos, acha os corpos não escondidos, prega contra a noite, arma armadilhas na
@@ -71,7 +72,9 @@ export class Vigilancia {
 
   atualizar(deltaMs: number) {
     const { suspeita, vampiro, avisos, energia, controle } = this.mundo;
-    for (const aviso of lerRegistro(suspeita, vampiro.registro)) avisos.mostrar(aviso);
+    const novidades = lerRegistro(suspeita, vampiro.registro);
+    if (novidades.length) tocarSom('perigo');
+    for (const aviso of novidades) avisos.mostrar(aviso);
 
     if (suspeita.linchado) {
       this.terminar('linchado');
