@@ -11,6 +11,7 @@ import { aplicarSave, gravar, ler, montarSave, type Armazenamento, type Partes }
 import { Suspeita } from '../src/estado/Suspeita';
 import { Vampiro } from '../src/estado/Vampiro';
 import { Historia } from '../src/estado/Historia';
+import { Clima } from '../src/estado/Clima';
 
 function novasPartes(): Partes {
   return {
@@ -27,6 +28,7 @@ function novasPartes(): Partes {
     vampiro: new Vampiro(),
     suspeita: new Suspeita(),
     historia: new Historia(),
+    clima: new Clima(),
     canteiros: {},
     recursos: [],
     onde: { local: 'fora', coluna: 106, linha: 15, volta: { coluna: 0, linha: 0 }, salaDeVolta: 'fora' },

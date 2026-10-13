@@ -13,7 +13,8 @@ import type { Interiores } from './Interiores';
 import { TAMANHO_CELULA } from './Mapa';
 import { anotarPista, registrarMordida, type Mundo } from './Mundo';
 import type { Jogador } from './Jogador';
-import { RAIO_DE_VISAO, SUSPEITA } from '../config';
+import { SUSPEITA } from '../config';
+import { raioDeVisao } from '../estado/Clima';
 import { RONDA, RONDA_COMECA, RONDA_TERMINA } from '../dados/vigilancia';
 import { nivel, somarSuspeita } from '../estado/Suspeita';
 
@@ -176,14 +177,17 @@ export class Aldeoes {
   }
 
   // Quem está acordado, na mesma sala (ou fora) e perto do Tomás: vê o que ele faz
+  // (na forma de névoa ninguém o vê; neblina e tempestade encurtam a vista)
   testemunhas(): IdAldeao[] {
+    if (this.mundo.vampiro.nevoaRestante > 0) return [];
+    const raio = raioDeVisao(this.mundo.clima);
     const pes = this.jogador.celulaDosPes;
     return this.naTela
       .filter((a) => this.mundo.relacoes.vivo(a.id) && !this.dormindo(a.id) && a.sala === this.interiores.local)
       .filter((a) => {
         const dx = Math.floor(a.sprite.x / TAMANHO_CELULA) - pes.coluna;
         const dy = Math.floor((a.sprite.y + 14) / TAMANHO_CELULA) - pes.linha;
-        return Math.hypot(dx, dy) <= RAIO_DE_VISAO;
+        return Math.hypot(dx, dy) <= raio;
       })
       .map((a) => a.id);
   }

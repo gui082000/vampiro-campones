@@ -13,6 +13,7 @@ export const CONTROLES = [
   'I: inventário · J: diário',
   'Esc: pausa / fechar · Q: fechar',
   'À noite, E em quem dorme: morder',
+  'V: névoa · B: morcego (poderes do altar)',
 ];
 
 // Lista as teclas num menu (cada linha uma opção apagada) com "Voltar"

@@ -1,4 +1,5 @@
-import { FOME_ALTA, MULTIPLICADOR_VELOCIDADE_FOME, MULTIPLICADOR_VELOCIDADE_NOITE, VELOCIDADE_CARREGANDO_CORPO } from '../config';
+import { ceuFechado, luaCheia } from '../estado/Clima';
+import { CLIMA, FOME_ALTA, MULTIPLICADOR_VELOCIDADE_FOME, MULTIPLICADOR_VELOCIDADE_NOITE, VELOCIDADE_CARREGANDO_CORPO } from '../config';
 import { fecharDia, passarTempo, queimarNoAmanhecer } from '../estado/Vampiro';
 import type { IdFinal } from '../dados/historia';
 import type { Interiores } from './Interiores';
@@ -20,9 +21,18 @@ export class Vampirismo {
     const { relogio, vampiro, energia, avisos } = mundo;
 
     relogio.ouvir('passou', (horas, eNoite) =>
-      passarTempo(vampiro, horas, eNoite, { hora: relogio.hora, dia: relogio.dia, foraDeCasa: interiores.local === 'fora', energia }),
+      passarTempo(vampiro, horas, eNoite, {
+        hora: relogio.hora,
+        dia: relogio.dia,
+        foraDeCasa: interiores.local === 'fora',
+        energia,
+        luaCheia: luaCheia(relogio.dia),
+        ceuFechado: ceuFechado(mundo.clima),
+      }),
     );
-    relogio.ouvir('anoiteceu', () => avisos.mostrar('A noite caiu. A fome desperta.'));
+    relogio.ouvir('anoiteceu', () =>
+      avisos.mostrar(luaCheia(relogio.dia) ? 'Lua cheia. Você nunca se sentiu tão forte... nem com tanta fome.' : 'A noite caiu. A fome desperta.'),
+    );
     relogio.ouvir('amanheceu', () => {
       if (interiores.local === 'fora') avisos.mostrar(queimarNoAmanhecer(vampiro, energia).aviso);
     });
@@ -45,9 +55,11 @@ export class Vampirismo {
     const { relogio, vampiro } = this.mundo;
     let multiplicador = 1;
     if (relogio.eNoite) multiplicador *= MULTIPLICADOR_VELOCIDADE_NOITE * (vampiro.tem('velocidade') ? 1.25 : 1);
+    if (relogio.eNoite && luaCheia(relogio.dia)) multiplicador *= CLIMA.velocidadeNaLuaCheia;
     if (vampiro.fome >= FOME_ALTA) multiplicador *= MULTIPLICADOR_VELOCIDADE_FOME;
     if (this.mundo.suspeita.carregando) multiplicador *= VELOCIDADE_CARREGANDO_CORPO;
     this.jogador.multiplicadorDeVelocidade = multiplicador;
+    this.jogador.sprite.setAlpha(vampiro.nevoaRestante > 0 ? 0.35 : 1);
     if (relogio.eNoite) this.jogador.sprite.setTint(TOM_DA_NOITE);
     else this.jogador.sprite.clearTint();
   }

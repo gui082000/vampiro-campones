@@ -1,5 +1,8 @@
 import {
+  CLIMA,
   DIAS_NO_LIMITE_PARA_SUCUMBIR,
+  MORCEGO,
+  NEVOA,
   ENERGIA_POR_HORA_NO_SOL,
   FOME_POR_HORA_DE_DIA,
   FOME_POR_HORA_DE_NOITE,
@@ -22,6 +25,7 @@ export class Vampiro {
   disfarcadoNoDia = 0; // ervas de disfarce: esconde os sinais nesse dia
   protegidoDoSolNoDia = 0; // unguento: o sol não cansa nesse dia
   sucumbiu = false;
+  nevoaRestante = 0; // horas que ainda faltam na forma de névoa
   registro: string[] = []; // o que ele fez à noite (a suspeita da Fase 5 vai ler daqui)
 
   tem(poder: Poder): boolean {
@@ -39,10 +43,18 @@ export function sinalVisivel(v: Vampiro, dia: number): string | null {
 
 // O tempo passa: a fome sobe (mais rápido à noite). De dia, no sol forte e fora de
 // casa, com fome, a maldição cansa o corpo.
-export function passarTempo(v: Vampiro, horas: number, eNoite: boolean, ctx: { hora: number; dia: number; foraDeCasa: boolean; energia: Energia }) {
-  v.fome = Math.min(100, v.fome + horas * (eNoite ? FOME_POR_HORA_DE_NOITE : FOME_POR_HORA_DE_DIA));
+// Na lua cheia a fome da noite cresce mais; com o céu fechado o sol não cansa.
+export function passarTempo(
+  v: Vampiro,
+  horas: number,
+  eNoite: boolean,
+  ctx: { hora: number; dia: number; foraDeCasa: boolean; energia: Energia; luaCheia?: boolean; ceuFechado?: boolean },
+) {
+  const fomeDaNoite = FOME_POR_HORA_DE_NOITE * (ctx.luaCheia ? CLIMA.fomeNaLuaCheia : 1);
+  v.fome = Math.min(100, v.fome + horas * (eNoite ? fomeDaNoite : FOME_POR_HORA_DE_DIA));
+  v.nevoaRestante = Math.max(0, v.nevoaRestante - horas);
   const [inicio, fim] = SOL_FORTE;
-  const noSol = !eNoite && ctx.foraDeCasa && ctx.hora >= inicio && ctx.hora < fim;
+  const noSol = !eNoite && !ctx.ceuFechado && ctx.foraDeCasa && ctx.hora >= inicio && ctx.hora < fim;
   if (noSol && v.fome >= 50 && v.protegidoDoSolNoDia !== ctx.dia) {
     ctx.energia.atual = Math.max(0, ctx.energia.atual - horas * ENERGIA_POR_HORA_NO_SOL);
   }
@@ -79,6 +91,30 @@ export function comprarPoder(v: Vampiro, poder: Poder): Resultado {
   v.essencia -= p.custo;
   v.poderes.push(poder);
   return feito(`Novo poder: ${p.nome}`);
+}
+
+// Vira névoa (só à noite): por um tempo ninguém consegue vê-lo
+export function virarNevoa(v: Vampiro, eNoite: boolean): Resultado {
+  if (!v.tem('nevoa')) return nada();
+  if (!eNoite) return nada('A névoa só vem à noite');
+  if (v.nevoaRestante > 0) return nada('Você já é névoa');
+  v.nevoaRestante = NEVOA.horas;
+  v.fome = Math.min(100, v.fome + NEVOA.fome);
+  return feito('Seu corpo se desfaz em névoa. Ninguém vai te ver por uma hora.');
+}
+
+// Por que não dá para voar agora (ou null se dá)
+export function impedeOVoo(v: Vampiro, eNoite: boolean, foraDeCasa: boolean): string | null {
+  if (!v.tem('morcego')) return '';
+  if (!eNoite) return 'O morcego só voa à noite';
+  if (!foraDeCasa) return 'Saia para o ar livre para voar';
+  return null;
+}
+
+// O voo cobra fome
+export function voarComoMorcego(v: Vampiro): Resultado {
+  v.fome = Math.min(100, v.fome + MORCEGO.fome);
+  return feito('Asas negras cortam o céu.');
 }
 
 // Usa um item do vampiro da mão (tecla F)

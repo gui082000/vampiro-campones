@@ -307,6 +307,25 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
 - Derrotas: **Linchado** (suspeita 100) e **A fome venceu**. São 7 finais ao todo.
 - Os finais descobertos ficam guardados no navegador entre partidas e aparecem no diário (aba Finais).
 
+**Fase 8 (2026-10-12):**
+- Tempo sorteado a cada novo dia, com chances por estação (`dados/clima.ts`): sol, chuva, neblina e tempestade.
+  - Chuva e tempestade regam toda a terra arada.
+  - Com o céu fechado, o sol não cansa o vampiro.
+  - Neblina e tempestade encurtam a vista dos aldeões de 6 para 3 células.
+  - Na tempestade nenhum viajante acampa.
+  - Efeitos na tela só ao ar livre: gotas de chuva, véu de neblina e relâmpagos.
+- Lua num ciclo de 8 dias, que aparece no HUD. Na lua cheia (dias 4, 12, 20...) a fome da noite sobe 1,5x e o Tomás corre 15% mais.
+- Estações: o tom do mapa por estação já existia; nada novo além do clima por estação.
+- Poderes novos no altar:
+  - **Névoa** (6 de essência, tecla V, à noite): por 1 hora ninguém o vê, ao custo de +8 de fome.
+  - **Morcego** (8 de essência, tecla B, à noite e ao ar livre): menu com 5 lugares para pousar (casa, igreja, cemitério, floresta e estrada), ao custo de +10 de fome.
+  - Opção mais simples que voo livre, porque não deixa o Tomás preso em paredes.
+- Eventos aleatórios: 30% de chance por manhã, com 6 eventos pequenos (moedas, sementes, cansaço, suspeita).
+  - O evento do rato sem sangue só acontece depois da primeira mordida.
+- Festivais: um por estação, no dia 7 (Semeadura, São João, Colheita, Vigília das Almas).
+  - Um mastro aparece na frente da igreja das 9h às 22h. Participar dá 5 pontos de amizade com cada aldeão vivo, um presente e -5 de suspeita, uma vez por festa.
+- O tempo do dia e as festas feitas entram no save.
+
 ## 9. Decisões pendentes
 
 - Mapa em imagem única: as árvores pintadas no mapa sempre ficam por baixo do Tomás. Resolver na arte final
@@ -341,6 +360,6 @@ diálogo com retrato; pausa (salvar, carregar, opções, controles); tela inicia
   rondas e armadilhas do Orlando, linchamento.
 - [x] **Fase 6 – Salvar/carregar,** tela inicial, pausa (Esc), opções, carregar no fim de jogo.
 - [x] **Fase 7 – História:** 3 atos com 9 cenas, 6 páginas do diário do tio, o Senhor da Colina e os finais.
-- [ ] **Fase 8 – Clima,** estações, lua, poderes avançados, eventos aleatórios e festivais.
+- [x] **Fase 8 – Clima,** estações, lua, poderes avançados, eventos aleatórios e festivais.
 - [ ] **Fase 9 – Polimento:** balanceamento, bugs, desempenho, som, textos, testes do jogo inteiro por simulação,
   README, preparação para publicar.

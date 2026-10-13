@@ -41,6 +41,7 @@ export function partesDoMundo(mundo: Mundo, extras?: Pick<Partes, 'canteiros' | 
     vampiro: mundo.vampiro,
     suspeita: mundo.suspeita,
     historia: mundo.historia,
+    clima: mundo.clima,
     canteiros: extras?.canteiros ?? {},
     recursos: extras?.recursos ?? [],
     onde: extras?.onde ?? { local: 'fora', coluna: 0, linha: 0, volta: { coluna: 0, linha: 0 }, salaDeVolta: 'fora' },

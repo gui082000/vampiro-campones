@@ -63,6 +63,15 @@ export class Fazenda {
     return alvo;
   }
 
+  // Chuva: toda a terra arada fica regada
+  regarTudo() {
+    for (const c of this.lavoura.todos()) {
+      if (!c.arado || c.regado) continue;
+      c.regado = true;
+      this.redesenhar(c);
+    }
+  }
+
   // Ao carregar um save: troca os canteiros e desenha todos
   restaurar(canteiros: Record<string, Canteiro>) {
     this.lavoura.canteiros = canteiros;

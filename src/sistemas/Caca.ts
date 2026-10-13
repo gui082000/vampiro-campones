@@ -174,7 +174,8 @@ export class Caca {
   atualizar() {
     const hora = this.mundo.relogio.hora;
     const horario = hora >= VIAJANTE_CHEGA || hora < VIAJANTE_PARTE;
-    if (horario && this.quemViaja && !this.viajanteNaEstrada) {
+    // Na tempestade ninguém acampa na estrada
+    if (horario && this.quemViaja && !this.viajanteNaEstrada && this.mundo.clima.tempo !== 'tempestade') {
       this.viajanteNaEstrada = true;
       this.viajante.setVisible(true);
       this.fogueira.setVisible(true);

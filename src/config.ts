@@ -77,3 +77,16 @@ export const SUSPEITA = {
 export const DOACAO_NA_IGREJA = 50; // moedas
 export const RAIO_DE_VISAO = 6; // células: aldeão acordado a essa distância vê a mordida
 export const VELOCIDADE_CARREGANDO_CORPO = 0.6;
+
+// Clima, lua, poderes avançados e festivais (Fase 8)
+export const CLIMA = {
+  raioDeVisao: RAIO_DE_VISAO,
+  raioDeVisaoComNeblina: 3, // neblina e tempestade escondem o Tomás
+  chanceDeEvento: 0.3, // por manhã
+  fomeNaLuaCheia: 1.5, // multiplica a fome da noite
+  velocidadeNaLuaCheia: 1.15,
+  festivalSuspeita: -5,
+  festivalAmizade: 5, // pontos com cada aldeão vivo (10 = 1 coração)
+};
+export const NEVOA = { horas: 1, fome: 8 }; // forma de névoa: invisível por 1 hora
+export const MORCEGO = { fome: 10 }; // voar para outro lugar

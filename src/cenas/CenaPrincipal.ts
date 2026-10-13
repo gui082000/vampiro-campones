@@ -28,6 +28,10 @@ import { Historia } from '../sistemas/Historia';
 import { Historia as HistoriaDoJogo } from '../estado/Historia';
 import type { IdFinal } from '../dados/historia';
 import { Escurecimento } from '../interface/Escurecimento';
+import { EfeitosDoClima } from '../interface/EfeitosDoClima';
+import { Clima as ClimaDoJogo } from '../estado/Clima';
+import { Clima } from '../sistemas/Clima';
+import { PoderesAvancados } from '../sistemas/PoderesAvancados';
 import { Hud } from '../interface/Hud';
 import { Menu } from '../interface/Menu';
 import { TelaDoInventario } from '../interface/TelaDoInventario';
@@ -78,6 +82,9 @@ export class CenaPrincipal extends Phaser.Scene {
   private evidencias!: Evidencias;
   private vigilancia!: Vigilancia;
   historia!: Historia;
+  clima!: Clima;
+  private poderes!: PoderesAvancados;
+  private efeitosDoClima!: EfeitosDoClima;
 
   private carregar = false;
   private salvar!: Salvar;
@@ -125,6 +132,7 @@ export class CenaPrincipal extends Phaser.Scene {
       suspeita: new Suspeita(),
       testemunhas: () => [],
       historia: new HistoriaDoJogo(),
+      clima: new ClimaDoJogo(),
     };
 
     // Carregar: o estado simples entra antes dos sistemas, que desenham o que leem
@@ -166,8 +174,12 @@ export class CenaPrincipal extends Phaser.Scene {
     this.evidencias = new Evidencias(this.mundo, this.interiores, this.jogador);
     this.vigilancia = new Vigilancia(this.mundo, this.jogador, this.interiores, terminar);
 
+    this.clima = new Clima(this.mundo, this.fazenda);
+    this.poderes = new PoderesAvancados(this.mundo, this.jogador, this.interiores, this.transicao);
+
+    this.efeitosDoClima = new EfeitosDoClima(this);
     this.escurecimento = new Escurecimento(this);
-    this.hud = new Hud(this, relogio, this.mundo.inventario, this.mundo.energia, this.mundo.interacao, this.mundo.vampiro, this.mundo.suspeita);
+    this.hud = new Hud(this, relogio, this.mundo.inventario, this.mundo.energia, this.mundo.interacao, this.mundo.vampiro, this.mundo.suspeita, this.mundo.clima);
 
     this.salvar = new Salvar(this.mundo, this.fazenda, this.coleta, this.interiores, this.jogador);
     if (save) {
@@ -213,8 +225,11 @@ export class CenaPrincipal extends Phaser.Scene {
     this.evidencias.atualizar();
     this.vigilancia.atualizar(delta);
     this.historia.atualizar();
+    this.clima.atualizar();
+    this.poderes.atualizar();
     this.fimDeJogo.atualizar();
 
+    this.efeitosDoClima.atualizar(this.mundo.clima.tempo, this.interiores.local === 'fora', delta);
     this.escurecimento.atualizar(relogio.hora, this.vampirismo.visao);
     avisos.atualizar(delta);
     this.hud.atualizar();

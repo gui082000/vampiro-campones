@@ -1,0 +1,49 @@
+[
+  {
+    "rotulo": "preparar atalhos do teste",
+    "js": "(() => { window.C = jogo.scene.getScene('CenaPrincipal'); window.irAte = (coluna, linha, lado) => { const lados = { cima: [0, 1], esquerda: [1, 0], direita: [-1, 0], baixo: [0, -1] }; const [dx, dy] = lados[lado]; C.jogador.teleportar(coluna + dx, linha + dy, lado); return 'ok'; }; window.pular = (dia, hora) => { const r = C.mundo.relogio; r.dia = dia; r.hora = hora; return r.horario; }; window.escolher = (trecho) => { const m = C.mundo.menu; const i = m.opcoes.findIndex((o) => o.texto.includes(trecho)); m.selecionada = i; return i; }; C.mundo.historia.eventosVistos.push('chegada','cartaDoTio','sinoDaMeiaNoite','tributo','orlandoInvestiga'); C.clima.aleatorio = () => 0.6; return 'ok'; })()"
+  },
+  { "esperar": 50 },
+  { "apertar": "e" },
+  { "apertar": "e" },
+  { "apertar": "e" },
+  { "apertar": "e" },
+  { "conferir": "!C.dialogo.estaAberto", "rotulo": "sem cenas da história no caminho (só no teste)" },
+  { "conferir": "[[106,15],[158,82],[144,110],[170,26],[118,81],[163,81]].every(([c,l]) => C.mundo.mapa.livre(c,l))", "rotulo": "os pousos do morcego e o mastro da festa estão em chão livre" },
+
+  { "js": "(C.fazenda.lavoura.pegar(100, 20).arado = true, pular(2, 5.9))", "rotulo": "um canteiro arado e seco; virando o dia com chuva sorteada" },
+  { "esperar": 1500 },
+  { "conferir": "C.mundo.clima.tempo === 'chuva' && C.fazenda.lavoura.canteiros['100,20'].regado", "rotulo": "choveu e a chuva regou a terra" },
+  { "foto": "01-chuva" },
+
+  { "js": "(C.mundo.clima.tempo = 'neblina', 'ok')" },
+  { "esperar": 1500 },
+  { "foto": "02-neblina" },
+  { "js": "(C.mundo.clima.tempo = 'tempestade', 'ok')" },
+  { "esperar": 1500 },
+  { "foto": "03-tempestade" },
+
+  { "js": "(C.clima.aleatorio = () => 0.99, C.mundo.clima.tempo = 'sol', pular(7, 10))", "rotulo": "dia 7: Festa da Semeadura" },
+  { "js": "irAte(163, 81, 'cima')" },
+  { "esperar": 30 },
+  { "conferir": "C.mundo.interacao.dica.includes('participar')", "rotulo": "o mastro da festa aparece na frente da igreja" },
+  { "foto": "04-festa" },
+  { "js": "C.mundo.relacoes.porAldeao.padre.pontos" , "rotulo": "amizade com o padre antes" },
+  { "apertar": "e" },
+  { "conferir": "C.mundo.clima.festivaisFeitos.includes(7) && C.mundo.relacoes.porAldeao.padre.pontos > 0", "rotulo": "participou: a vila gosta mais do Tomás" },
+
+  { "js": "(C.mundo.vampiro.poderes.push('nevoa','morcego'), pular(12, 21.5))", "rotulo": "dia 12 (lua cheia), 21h30, com névoa e morcego (só no teste)" },
+  { "esperar": 50 },
+  { "conferir": "C.mundo.relogio.dia % 8 === 4", "rotulo": "é noite de lua cheia" },
+  { "apertar": "v" },
+  { "conferir": "C.mundo.vampiro.nevoaRestante > 0 && C.mundo.testemunhas().length === 0", "rotulo": "V: virou névoa e ninguém vê" },
+  { "esperar": 200 },
+  { "foto": "05-nevoa" },
+  { "apertar": "b" },
+  { "conferir": "C.mundo.menu.estaAberto", "rotulo": "B: menu do voo do morcego" },
+  { "foto": "06-morcego" },
+  { "js": "escolher('Floresta')" },
+  { "apertar": "e" },
+  { "esperarAte": "!C.transicao.emAndamento && C.jogador.celulaDosPes.coluna === 170 && C.jogador.celulaDosPes.linha === 26", "maxQuadros": 200, "rotulo": "pousou na floresta" },
+  { "foto": "07-floresta" }
+]

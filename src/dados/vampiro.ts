@@ -15,6 +15,8 @@ export const PODERES = {
   velocidade: { nome: 'Velocidade', custo: 3, descricao: 'À noite você corre ainda mais rápido.' },
   visaoNoturna: { nome: 'Visão noturna', custo: 3, descricao: 'A noite quase não escurece para você.' },
   hipnose: { nome: 'Hipnose', custo: 5, descricao: 'Quem você morde sem matar não lembra de nada.' },
+  nevoa: { nome: 'Névoa', custo: 6, descricao: 'Tecla V, à noite: vira névoa por 1 hora. Ninguém te vê. Dá fome.' },
+  morcego: { nome: 'Morcego', custo: 8, descricao: 'Tecla B, à noite e fora de casa: voa para outro lugar. Dá fome.' },
 } as const;
 
 export type Poder = keyof typeof PODERES;

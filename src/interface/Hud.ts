@@ -9,6 +9,7 @@ import type { Interacao } from '../sistemas/Interacao';
 import type { Relogio } from '../sistemas/Relogio';
 import { sinalVisivel, type Vampiro } from '../estado/Vampiro';
 import { faixa, type Suspeita } from '../estado/Suspeita';
+import { faseDaLua, nomeDoTempo, type Clima } from '../estado/Clima';
 import { CaixaDeItem } from './CaixaDeItem';
 
 const ESTILO_TEXTO: Phaser.Types.GameObjects.Text.TextStyle = {
@@ -56,7 +57,19 @@ export class Hud {
   private barraFome!: Phaser.GameObjects.Rectangle;
   private textoFome!: Phaser.GameObjects.Text;
 
-  constructor(scene: Phaser.Scene, relogio: Relogio, inventario: Inventario, energia: Energia, interacao: Interacao, vampiro: Vampiro, suspeita: Suspeita) {
+  private clima: Clima;
+
+  constructor(
+    scene: Phaser.Scene,
+    relogio: Relogio,
+    inventario: Inventario,
+    energia: Energia,
+    interacao: Interacao,
+    vampiro: Vampiro,
+    suspeita: Suspeita,
+    clima: Clima,
+  ) {
+    this.clima = clima;
     this.vampiro = vampiro;
     this.suspeita = suspeita;
     this.relogio = relogio;
@@ -111,7 +124,7 @@ export class Hud {
   atualizar() {
     const { dia, horario, eNoite } = this.relogio;
     this.textoData.setText(`Dia ${dia} · ${textoDaData(dia)}`);
-    this.textoHora.setText(`${horario} · ${eNoite ? 'Vampiro' : 'Camponês'}`);
+    this.textoHora.setText(`${horario} · ${eNoite ? 'Vampiro' : 'Camponês'} · ${nomeDoTempo(this.clima)} · ${faseDaLua(dia)}`);
     this.textoMoedas.setText(`Moedas: ${this.inventario.moedas}`);
 
     const fracao = this.energia.atual / this.energia.maxima;
